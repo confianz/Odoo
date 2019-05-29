@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <record id="crm_case_form_view_oppor_inherit_cit_website_lead" model="ir.ui.view">
+        <field name="name">crm.lead.form.opportunity.inherit.cit.website.lead</field>
+        <field name="model">crm.lead</field>
+        <field name="inherit_id" ref="crm.crm_case_form_view_oppor" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="contact_name" />
+                <field name="partner_name" string="Company Name" />
+            </field>
+            <field name="phone" position="after">
+                <field name="website" />
+            </field>
+            <field name="date_deadline" position="after">
+                <field name="service_type" />
+                <field name="budget" />
+                <field name="page_name" />
+                <field name="page_slug" />
+            </field>
+            <xpath expr="//field[@name='description']/.." position="before">
+                <page name="comments" string="Comments">
+                    <field name="comments" />
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
