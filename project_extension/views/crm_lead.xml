@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id='crm_opprt_inherit' model='ir.ui.view'>
+            <field name='name'>crm.opprt.inherit</field>
+            <field name='model'>crm.lead</field>
+            <field name='inherit_id' ref='crm.crm_case_form_view_oppor'/>
+            <field name='arch' type='xml'>
+                <xpath expr='//header' position='inside'>
+                    <button string='Create Project' type='object' name='create_project_from_lead' class='oe_highlight' attrs="{'invisible': [('project_id', '!=', False)]}"/>
+                </xpath>
+                <xpath expr="//notebook/page[@name='lead']/group/group[4]/field[@name='day_open']" position='before'>
+                    <field name='project_id'/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

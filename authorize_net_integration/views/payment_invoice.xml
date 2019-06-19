@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="InvoicePaymentView">
+            <t t-call-assets="web.assets_common"/>
+            <t t-call-assets="web.assets_backend"/>
+            <t id="custom_title" name="change title" inherit_id="web.layout">
+                <xpath expr="//title" position="replace">
+                    <title><t t-esc="company_name"/></title>
+                </xpath>
+            </t>
+
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <title><t t-esc="company_name"/></title>
+                    <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+                    <link rel="stylesheet" href="/authorize_net_integration/static/src/css/payment.css"/>
+
+                    <link rel="shortcut icon" href="/authorize_net_integration/static/src/img/favicon.ico"
+                          type="image/x-icon"/>
+                </t>
+                <div class='page'>
+                    <div>
+                        <p class="oe_form_paragraph"></p>
+                        <div class="edi_container online_payment">
+                            <form action="/web/verification/invoice" method="post" id="online_payment">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <div class="oe_edi_paperbox">
+                                    <h1 style="color:#2f5571;" class="oe_edi_doc_title"><t t-esc="company_name"/> Payment Wizard</h1>
+                                    <div class="approve_details">
+                                        <div class="row">
+                                            <div id="credit_card_page" class="col-xs-12 col-md-4">
+
+                                                <div class="panel-heading" style="color:#45618e;">
+                                                    <h3 class="panel-title text-center">
+                                                        <t t-esc="invoice_id.partner_id.name"/>
+                                                    </h3>
+                                                </div>
+
+                                                <div class="panel-heading">
+                                                    <h3 class="panel-title text-center">
+                                                        Payment Details
+                                                    </h3>
+                                                </div>
+                                                <div class="panel-heading" style="background-color:#c7c7c7;">
+                                                    <div class="row">
+                                                        <input type="checkbox" name="selected_p_method"
+                                                               checked="checked" t-att-value="card"
+                                                               style="display:none;" id="selected_p_method"/>
+                                                        <div class="col-xs-6 col-md-6 pull-left">
+                                                            <label for="card" class="payment_card_select">
+                                                                Card Payment
+                                                            </label>
+                                                        </div>
+                                                        <div class="col-xs-6 col-md-6 pull-left">
+                                                            <label for="check" class="payment_check_select">
+                                                                eCheck
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-body">
+                                                        <div class="form-group card_payment_body">
+                                                            <label for="cardNumber">
+                                                                CARD NUMBER
+                                                            </label>
+                                                            <input type="text" style="width:100%;" class="form-control"
+                                                                   maxlength="16" name="card" id="cardNumber"
+                                                                   placeholder="Valid Card Number"
+                                                                   required="required"/>
+                                                        </div>
+                                                        <div class="container_edr card_payment_body"
+                                                             style="margin-top:2px;margin-bottom:7px;"
+                                                             id="credit_cards">
+                                                            <img class="my_class_blur"
+                                                                 src="/authorize_net_integration/static/src/img/visa.png"
+                                                                 id="visa"></img>
+                                                            <img src="/authorize_net_integration/static/src/img/mastercard.png"
+                                                                 id="mastercard"></img>
+                                                            <img src="/authorize_net_integration/static/src/img/amex.png"
+                                                                 id="amex"></img>
+                                                            <img src="/authorize_net_integration/static/src/img/discover.png"
+                                                                 style="height:22px;" id="discover"></img>
+                                                        </div>
+                                                        <div class="row card_payment_body">
+                                                            <div class="col-xs-4 col-md-4 pull-right">
+                                                                <div class="form-group">
+                                                                    <label for="cvCode">
+                                                                        CVV
+                                                                    </label>
+                                                                    <input type="password" class="form-control"
+                                                                           name="cvv" id="cvCode" placeholder="CVV"
+                                                                           required="required" maxlength="4"
+                                                                           autocomplete="nope"/>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xs-4 col-md-4 pull-right">
+                                                                <div class="form-group">
+                                                                    <label for="month">
+                                                                        Exp Month
+                                                                    </label>
+                                                                    <div class="form-control">
+                                                                        <select style="height:.89cm;"
+                                                                                required="required" name="month"
+                                                                                id="expiry_month"
+                                                                                class="selectpicker">
+                                                                            <option value="">Select</option>
+                                                                            <option value="01">January</option>
+                                                                            <option value="02">February</option>
+                                                                            <option value="03">March</option>
+                                                                            <option value="04">April</option>
+                                                                            <option value="05">May</option>
+                                                                            <option value="06">June</option>
+                                                                            <option value="07">July</option>
+                                                                            <option value="08">August</option>
+                                                                            <option value="09">September</option>
+                                                                            <option value="10">October</option>
+                                                                            <option value="11">November</option>
+                                                                            <option value="12">December</option>
+                                                                        </select>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-xs-4 col-md-4 pull-right">
+                                                                <div class="form-group">
+                                                                    <label for="year">
+                                                                        Exp Year
+                                                                    </label>
+                                                                    <div class="form-control">
+                                                                        <select class="selectpicker"
+                                                                                style="height:.89cm;" name="year">
+                                                                            <t t-foreach="range(datetime.datetime.now().year,(datetime.datetime.now().year)+11)"
+                                                                               t-as="num">
+                                                                                <option t-att-value="num">
+                                                                                    <t t-esc="num"/>
+                                                                                </option>
+                                                                            </t>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="panel-body cheque_payment_body">
+                                                            <div class="form-group">
+                                                                <label for="chequeName">
+                                                                    Name
+                                                                </label>
+                                                                <input type="text" style="width:100%;"
+                                                                       class="form-control" maxlength="16"
+                                                                       name="account_name"
+                                                                       id="account_name"
+                                                                       placeholder="Valid Name"
+                                                                />
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="accountNumber">
+                                                                    Account NUMBER
+                                                                </label>
+                                                                <input type="text" style="width:100%;"
+                                                                       class="form-control" maxlength="16"
+                                                                       name="account_number"
+                                                                       id="account_number"
+                                                                       placeholder="Valid Account Number"
+                                                                />
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <div class="form-group">
+                                                                    <label for="routingNumber">
+                                                                        Routing NUMBER
+                                                                    </label>
+                                                                    <input type="text" style="width:100%;"
+                                                                           class="form-control" maxlength="16"
+                                                                           name="routing_number"
+                                                                           id="routing_number"
+                                                                           placeholder="Valid Routing Number"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="bank_name">
+                                                                    Bank Name
+                                                                </label>
+                                                                <input type="text" name="bank_name"
+                                                                       class="form-control" id="bank_name"
+                                                                       placeholder="Valid Bank Name"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="form-group col-xs-12 col-md-12">
+                                                                <t t-set="invoice_initial_amount"
+                                                                   t-value="'%.2f'%(invoice_id.residual)"/>
+                                                                <label for="invoice_amount">Invoice Amount ($)</label>
+                                                                <input type="text" name="invoice_amount"
+                                                                       class="form-control" step="0.01"
+                                                                       id="invoice_amount"
+                                                                       t-att-value="invoice_initial_amount"
+                                                                       readonly="True"/>
+                                                                <input type="hidden" class="form-control"
+                                                                       t-att-value="invoice_id.id"
+                                                                       name="invoice_number" id="inv_num"
+                                                                       readonly="True"/>
+                                                            </div>
+                                                        </div>
+                                                        <hr/>
+                                                        <input type="submit" name="Payment" value="Make Payment"
+                                                               class="btn btn-success btn-lg btn-block payment_submit"
+                                                               style="background-color:#2f5571; color:#fff; "></input>
+                                                    </div>
+                                                    <div style="text-align:center;;">
+                                                        <t t-if="warning">
+                                                            <input type="checkbox" id="error_m" style="display:none;"
+                                                                   name="error_message" checked="checked"/>
+                                                            <div class="tooltip">
+                                                                <h3 style="color:red;">Transaction Failure.
+                                                                    <span style="color:blue;">See more..</span>
+                                                                </h3>
+                                                                <span class="tooltiptext">
+                                                                    <P>
+                                                                        <center>
+                                                                            <span style="color:red;" t-esc="warning"></span>
+                                                                        </center>
+                                                                    </P>
+                                                                </span>
+                                                            </div>
+                                                        </t>
+                                                    </div>
+                                                    <div id="popup_box" class="modal" tabindex="-1" role="dialog"
+                                                         aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header"
+                                                                     style="background-color:#45618e;">
+                                                                    <h2 class="modal-title text-center">
+                                                                        <strong>Transaction Failure</strong>
+                                                                    </h2>
+                                                                </div>
+                                                                <div class="modal-body"
+                                                                     style="background-color:#c7c7c7;">
+                                                                    <p>
+                                                                        <strong>
+                                                                            <span t-esc="warning"></span>
+                                                                        </strong>
+                                                                    </p>
+                                                                    <p>
+                                                                        <strong>Please try again or contact us.
+                                                                        </strong>
+                                                                    </p>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <a style="background-color:#c7c7c7;" href="#"
+                                                                       data-dismiss="modal" aria-hidden="true"
+                                                                       id="popupBoxClose">
+                                                                        <h3>
+                                                                            <strong>OK</strong>
+                                                                        </h3>
+                                                                    </a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <br/>
+                                            </div>
+                                            <div id="ed-dialog" title="Alert message" style="display: none">
+                                                <div class="ed-ui-dialog-content ed-ui-widget-content">
+                                                    <p>
+                                                        <span class="ui-icon ui-icon-alert"
+                                                              style="float: left; margin: 0 7px 20px 0"></span>
+                                                        <label id="lblMessage">
+                                                        </label>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="col-xs-12 col-md-8"
+                                                 style="    height: 631px;    background: #f0f0f0;    padding: 15px 20px;">
+
+                                                    <div class="invoice_list">
+                                                        <div class="current-invoice" >
+                                                            <span>Following is your invoice: 
+                                                                <strong>
+                                                                    <t t-esc="invoice_id.number"></t>
+                                                                </strong>
+                                                            </span>
+                                                        </div>
+                                                        <div class="invoice-table-wrapper">
+                                                            <table class="table table-condensed table-invoice"
+                                                                   id="myTable">
+                                                                <tbody>
+                                                                    <t t-foreach="invoice_ids" t-as="num">
+                                                                        <tr>
+                                                                            <th>Invoice</th>
+                                                                            <td>
+                                                                                <t t-if="num==invoice_id">
+                                                                                    <t t-esc="num.number"/>
+                                                                                    <br></br>
+                                                                                    <input t-att-name="'invoice_box_'+str(num_index)"
+                                                                                           type="hidden"
+                                                                                           t-att-value="num.id"/>
+
+                                                                                </t>
+                                                                                <t t-if="num!=invoice_id">
+                                                                                    <t t-esc="num.number"/>
+                                                                                    <br></br>
+                                                                                </t>
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>Invoice Date</th>
+                                                                            <td>
+                                                                                <t t-esc="num.date_invoice"></t>
+
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>Due Date</th>
+                                                                            <td>
+                                                                                <t t-esc="num.date_due"></t>
+
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr>
+                                                                            <th>Due Amount ($)</th>
+                                                                            <td>
+
+                                                                                <t t-esc="'%.2f'%(num.residual)"></t>
+                                                                            </td>
+                                                                        </tr>
+                                                                    <input type="hidden" name="inv_count"
+                                                                           t-att-value="len(invoice_ids)"/>
+                                                                    </t>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

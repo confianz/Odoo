@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_invoice_document_project_extension">
+            <t t-call="web.html_container">
+           <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-set="o" t-value="o.with_context({'lang': lang})"/>
+                    <t t-set="address">
+                        <address t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}' />
+                        <div t-if="o.partner_id.vat" class="mt16"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></div>
+                    </t>
+                    <div class="page">
+                        <table style="width:100%;">
+                            <tr>
+                                <td>
+                                    <h6 style="font-weight:400; color:#616161;">ISSUED TO</h6>
+                                    <h3><span t-field="o.partner_id.name" style="color:#4daecc;font-size: 24px;border-bottom: 1px solid #696969;padding-bottom: 4px;"/></h3>
+                                    <div style="color:#616161; font-size: 12px; font-weight:400; margin-top:10px;">
+                                        <t t-esc="o.partner_id.street"/> <br/>
+                                        <t t-esc="o.partner_id.city"/><span>,</span>
+                                        <t t-esc="o.partner_id.state_id.name"/><span> - </span>
+                                        <t t-esc="o.partner_id.zip"/><br/>
+                                        <a t-att-href="o.partner_id.email"><t t-esc="o.partner_id.email"/></a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="background-color:#4daecc;color:white; width:350px; padding:5px; margin-left:auto;" >
+                                        <h6 style="font-weight:400;">
+                                            <span t-if="o.type == 'out_invoice' and o.state in ('open', 'in_payment', 'paid')">INVOICE</span>
+                                            <span t-if="o.type == 'out_invoice' and o.state == 'draft'">DRAFT INVOICE</span>
+                                            <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">CANCELLED INVOICE</span>
+                                            <span t-if="o.type == 'out_refund'">CREDIT NOTE</span>
+                                            <span t-if="o.type == 'in_refund'">VENDOR CREDIT NOTE</span>
+                                            <span t-if="o.type == 'in_invoice'">VENDOR BILL</span>
+                                            <span>#:</span>
+                                            <span t-field="o.number"/>
+                                        </h6>
+                                        <h6 style="font-weight:400;" class="oe_grey" t-if="o._name == 'account.invoice'">DATE ISSUED: <t t-esc="o.date_invoice"/></h6>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </table>
+
+
+                        <br/><br/><br/>
+                        <t t-if="o.project_id">
+                            <table class="table table-sm" name="project_invoice_table" style="background-color:#edeeef">
+                            <thead>
+                                <tr style="color: #5d5d5d;">
+                                    <t t-set="colspan" t-value="6"/>
+                                    <th class="text-center"><span>PROJECT NAME</span></th>
+                                    <th class="text-center"><span>TYPE</span></th>
+                                    <th t-if="o.payment_term_id" class="text-center"><span>PAYMENT TERMS</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="color: #5d5d5d; font-weight:400;">
+                                    <td class="text-center"><t t-esc="o.project_id.name"/></td>
+                                    <td class="text-center"><span t-field="o.project_id.project_type"/></td>
+                                    <td t-if="o.payment_term_id" class="text-center"><t t-esc="o.payment_term_id.name"/></td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </t>
+
+                        <div id="informations" class="row mt32 mb32"> <!--kept for technical reasons only-->
+                        </div>
+
+                        <t t-set="display_discount" t-value="any([l.discount for l in o.invoice_line_ids])"/>
+
+                        <table class="table table-sm o_main_table" name="invoice_line_table">
+                            <t t-set="product_set" t-value="'no'"/>
+                            <t t-if="any([l.product_id for l in o.invoice_line_ids])">
+                                <t t-set="product_set" t-value="'yes'"/>
+                            </t>
+                            <thead>
+                                <tr style="background-color:#4daecc;color:white;">
+                                    <t t-set="colspan" t-value="6"/>
+                                    <th class="text-center"><span>SL.NO.</span></th>
+                                    <th class="text-center" t-if="product_set == 'yes'"><span>TERM</span></th>
+                                    <th class="text-center"><span>DESCRIPTION</span></th>
+                                    <th class="text-center"><span>COST(USD)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="sl_no" t-value="1"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                                <t t-foreach="o.invoice_line_ids" t-as="line">
+                                    <tr style="color: #5d5d5d; font-weight:400;">
+                                        <td class="text-center"><span t-esc="sl_no"/></td>
+                                        <td class="text-center" t-if="product_set == 'yes' and line.product_id"><span t-field="line.product_id.name"/></td>
+                                        <td class="text-left"><span t-field="line.product_id.description"/></td>
+                                        <td class="text-center"><span t-field="line.price_total"/></td>
+                                    </tr>
+                                    <t t-set="sl_no" t-value="sl_no + 1"/>
+                                </t>
+                            </tbody>
+                        </table>
+                        <br/><br/><br/><br/>
+                        <div class="clearfix">
+                            <div id="total" class="row">
+                                <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                                    <table class="table table-sm">
+                                        <tr style="background-color:#edeeef">
+                                            <td style="color: #5d5d5d;"><strong>TOTAL</strong></td>
+                                            <td class="text-center">
+                                                <span style="color: #5d5d5d;" t-field="o.amount_total"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr style="background-color:#4daecc">
+                                            <td style="color:white; font-weight:600;">AMOUNT DUE</td>
+                                            <td class="text-center">
+                                                <span style="color:white;" t-field="o.residual"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <br/><br/><br/>
+                        <p t-if="o.comment" name="comment">
+                            <span style="background-color:#4daecc;padding-bottom: 4px;padding-top:4px" t-field="o.comment"/>
+                        </p>
+
+                        <p t-if="not o.project_id and o.payment_term_id" name="payment_term">
+                            <span style="background-color:#4daecc;padding-bottom: 4px;padding-top:4px" t-field="o.payment_term_id.note"/>
+                        </p>
+
+                        <p t-if="o.fiscal_position_id.note" name="note">
+                            <span style="background-color:#4daecc;padding-bottom: 4px;padding-top:4px;color:white;" t-field="o.fiscal_position_id.note"/>
+                        </p>
+                        <div id="qrcode" t-if="(o.partner_id.country_id.code in ['BE', 'AT', 'DE', 'FI', 'NL']) and (o.company_id.qr_code) and (o.currency_id.name == 'EUR') and (o.partner_bank_id.acc_number != False)">
+                            <p t-if="(o.partner_bank_id.qr_code_valid)">
+                                <strong class="text-center">Scan me with your banking app.</strong><br /><br />
+                                <img class="border border-dark rounded" t-att-src="o.partner_bank_id.build_qr_code_url(o.residual,(o.reference) if (o.reference) else o.number)"/>
+                            </p>
+                            <p t-if="(o.partner_bank_id.qr_code_valid == False)">
+                                <strong class="text-center">The SEPA QR Code informations are not set correctly.</strong><br />
+                            </p>
+                        </div>
+                    </div>
+                </t>
+           </t>
+           </t>
+        </template>
+         <template id="report_invoice_document_with_payments_inherits" inherit_id="project_extension.report_invoice_document_project_extension" primary="True">
+            <xpath expr="//div[@class='clearfix']//table/tr" position="after">
+                 <t t-set="payments_vals" t-value="o._get_payments_vals()"/>
+                    <t t-if="len(payments_vals) > 0">
+                        <t t-foreach="payments_vals" t-as="payment_vals">
+                            <tr style="background-color:#4daecc">
+                                    <td style="color:white; font-weight:600;">PAID ON (<t style="font-size:12px;" t-esc="payment_vals['date']"/>)</td>
+                                    <td class="text-center">
+                                        <span t-esc="payment_vals['amount']" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                    </td>
+                            </tr>
+                        </t>
+                     </t>
+            </xpath>
+        </template>
+
+        <template id="report_payment_receipt_document_inherit_project" inherit_id="account.report_payment_receipt_document">
+            <xpath expr="//t/div" position="replace">
+
+                    <t t-set="o" t-value="o.with_context({'lang': lang})"/>
+                    <div class="page">
+                        <table style="width:100%;">
+                            <tr>
+                                <td>
+                                    <h6 style="font-weight:400; color:#616161;">ISSUED TO</h6>
+                                    <h3><span t-field="o.partner_id.name" style="color:#4daecc;font-size: 24px;border-bottom: 1px solid #696969;padding-bottom: 4px;"/></h3>
+                                    <div style="color:#616161; font-size: 12px; font-weight:400; margin-top:10px;">
+                                        <t t-esc="o.partner_id.street"/> <br/>
+                                        <t t-esc="o.partner_id.city"/><span>,</span>
+                                        <t t-esc="o.partner_id.state_id.name"/><span> - </span>
+                                        <t t-esc="o.partner_id.zip"/><br/>
+                                        <a t-att-href="o.partner_id.email"><t t-esc="o.partner_id.email"/></a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="background-color:#4daecc;color:white; width:350px; padding:5px; margin-left:auto;" >
+                                        <h6 style="font-weight:400;" class="oe_grey">RECEIPT #:  <t t-esc="o.move_name"/> </h6>
+                                        <h6 style="font-weight:400;" class="oe_grey">INVOICE REF : <t t-esc="o.communication"/> </h6>
+                                        <h6 style="font-weight:400;" class="oe_grey">DATE RECEIVED : <t t-esc="o.payment_date"/> </h6>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        </table>
+                        <br/><br/><br/>
+                        <t t-if="any([l.project_id for l in o.invoice_ids])">
+                            <table class="table table-sm" name="project_invoice_table" style="background-color:#edeeef">
+                                <thead>
+                                    <tr style="color: #5d5d5d;">
+                                        <t t-set="colspan" t-value="6"/>
+                                        <th class="text-center"><span>PROJECT NAME</span></th>
+                                        <th class="text-center"><span>TYPE</span></th>
+                                        <th class="text-center"><span>MODE OF PAYMENT</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="o.invoice_ids" t-as="line">
+                                        <tr style="color: #5d5d5d; font-weight:400;">
+                                            <td class="text-center"><t t-esc="line.project_id.name"/></td>
+                                            <td class="text-center"><span t-field="line.project_id.project_type"/></td>
+                                            <td class="text-center"><t t-esc="o.journal_id.name"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <div id="informations" class="row mt32 mb32"> <!--kept for technical reasons only-->
+                        </div>
+
+<!--                        <t t-set="display_discount" t-value="any([l.discount for l in o.invoice_line_ids])"/>-->
+                        <table t-if="not o.invoice_ids" class="table table-sm o_main_table" name="invoice_line_table">
+                            <thead>
+                                <tr style="background-color:#4daecc;color:white;">
+                                    <t t-set="colspan" t-value="6"/>
+                                    <th class="text-center"><span>SL.NO.</span></th>
+                                    <th class="text-center"><span>TERM</span></th>
+                                    <th class="text-center"><span>DESCRIPTION</span></th>
+                                    <th class="text-center"><span>COST(USD)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="sl_no" t-value="1"/>
+                                        <tr style="color: #5d5d5d; font-weight:400;">
+                                            <td class="text-center"><span t-esc="sl_no"/></td>
+                                            <td class="text-center" ><span t-field="o.journal_id.name"/></td>
+                                            <td class="text-center"><span t-field="o.payment_type"/></td>
+                                            <td class="text-center"><span t-field="o.amount"/></td>
+                                        </tr>
+                            </tbody>
+                        </table>
+                        <table t-if="o.invoice_ids" class="table table-sm o_main_table" name="invoice_line_table">
+                            <thead>
+                                <tr style="background-color:#4daecc;color:white;">
+                                    <t t-set="colspan" t-value="6"/>
+                                    <th class="text-center"><span>SL.NO.</span></th>
+                                    <th class="text-center"><span>TERM</span></th>
+                                    <th class="text-center"><span>DESCRIPTION</span></th>
+                                    <th class="text-center"><span>COST(USD)</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="sl_no" t-value="1"/>
+                                <t t-if="any([l.project_id for l in o.invoice_ids])">
+                                    <t t-foreach="o.invoice_ids" t-as="line">
+                                        <tr style="color: #5d5d5d; font-weight:400;">
+                                            <td class="text-center"><span t-esc="sl_no"/></td>
+                                            <td class="text-center" ><span t-field="line.project_id.product_id.name"/></td>
+                                            <td class="text-left"><span t-field="line.project_id.product_id.description"/></td>
+                                            <td class="text-center"><span t-field="line.amount_total"/></td>
+                                        </tr>
+                                        <t t-set="sl_no" t-value="sl_no + 1"/>
+                                    </t>
+                                </t>
+                                <t t-else="not len([l.project_id for l in o.invoice_ids])">
+                                    <t t-foreach="o.invoice_ids" t-as="line">
+                                        <t t-foreach="line.invoice_line_ids" t-as="inv_line">
+                                            <tr style="color: #5d5d5d; font-weight:400;">
+                                                <td class="text-center"><span t-esc="sl_no"/></td>
+                                                <td class="text-left"><span t-field="line.payment_term_id"/></td>
+                                                <td class="text-center"><span t-field="inv_line.name"/></td>
+                                                <td class="text-center"><span t-field="inv_line.price_total"/></td>
+                                            </tr>
+                                            <t t-set="sl_no" t-value="sl_no + 1"/>
+                                        </t>
+                                    </t>
+                                </t>
+                            </tbody>
+                        </table>
+                        <br/><br/><br/><br/>
+
+                        <div class="clearfix">
+                                <div id="total" class="row" style="margin-right:36px;">
+                                    <div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+                                        <t t-set="invoiced_amount" t-value="sum([inv.amount_total_signed for inv in o.invoice_ids])"/>
+                                        <t t-set="amount_residual" t-value="sum([inv.residual_signed for inv in o.invoice_ids])"/>
+                                        <t t-set="amount_total" t-value="sum([inv.amount_total_signed for inv in o.invoice_ids])"/>
+                                        <table  border='0' class="text-center" width="300px">
+                                            <tr style="background-color:#404040;">
+                                                <td style="color:white;"><strong>TOTAL INVOICED</strong></td>
+                                                <td  style="color:white;" t-if="o.invoice_ids">
+                                                    <span t-esc="invoiced_amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                </td>
+                                                 <td  style="color:white;" t-if="not o.invoice_ids">
+                                                    <span t-esc="o.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                </td>
+                                            </tr>
+                                            <tr style="background-color:#4daecc;">
+                                                <td style="color:white; font-weight:600;">AMOUNT RECEIVED</td>
+                                                <td t-if="o.invoice_ids">
+                                                     <span style="color:white;" t-esc="amount_total" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                </td>
+                                                <td t-if="not o.invoice_ids">
+                                                     <span style="color:white;" t-esc="o.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                </td>
+                                            </tr>
+                                            <tr style="background-color:#4daecc;" t-if="o.invoice_ids">
+                                                <td style="color:white; font-weight:600;">BALANCE DUE TO BE PAID</td>
+                                                <td>
+                                                     <span style="color:white;" t-esc="amount_residual" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+            </xpath>
+        </template>
+    </data>
+</odoo>

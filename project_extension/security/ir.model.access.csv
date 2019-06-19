@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_proposal_version_user,proposal.version.user,model_proposal_version,base.group_user,1,1,1,1
+access_project_milestone_user,project.milestone.user,model_project_milestone,base.group_user,1,1,1,1

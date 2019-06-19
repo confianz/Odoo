@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="make_payment_wizard_form">
+            <field name="name">make.payment.wizard.form</field>
+            <field name="model">make.payment</field>
+            <field name="arch" type="xml">
+                <form string ="Make payment wizard">
+                <sheet>
+                    <p class="oe_grey">
+                        Payment will only be authorized here. The amount will be deducted from card holders account after completetion of invoicing process.
+                    </p>
+
+                    <field name="partner_id" invisible="1"/>
+                    <field name='is_correction' invisible='1'/>
+                    <h3> <label for='is_correction' attrs="{'invisible':[('is_correction', '=', False)]}" string='Please note that you are going to edit an Authorize Net payment!'/></h3>
+
+                    <group>
+                        <p class="oe_grey" attrs="{'invisible':[('payment_nos','=',0)]}">
+                            The below dropdown shows the list of cards that you have previously used to make payments for this customer. Select a saved card from the list or leave it empty to enter a new card.
+                        </p>
+                    </group>
+                    <group>
+                        <field name='payment_id' attrs="{'invisible':[('payment_nos','=',0)]}"/>
+                        <field name='payment_nos' invisible="1"/>
+                    </group>
+
+                    <group col="4" colspan="2">
+                        <field name="card_no" attrs="{'required':[('payment_id', '=', False)], 'invisible':[('payment_id', '!=', False)]}"/>
+                        <field name="card_code" attrs="{'required':[('payment_id', '=', False)], 'invisible':[('payment_id', '!=', False)]}"/>
+                        <field name="exp_month" attrs="{'required':[('payment_id', '=', False)], 'invisible':[('payment_id', '!=', False)]}"/>
+                        <field name="exp_year" attrs="{'required':[('payment_id', '=', False)], 'invisible':[('payment_id', '!=', False)]}"/>
+
+                    </group>
+                    <footer>
+                        <button name="authorize_transaction" string="Authorize" type="object" class='oe_highlight'/>or
+                        <button string="Cancel" special="cancel" class="oe_link"/>
+                    </footer>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+
+        <record id="authorize_net_integration.action_make_payment_wizard" model="ir.actions.act_window">
+            <field name="name">Authorize payment</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">make.payment</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="make_payment_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

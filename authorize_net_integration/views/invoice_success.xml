@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <template id="InvoiceResultViewSuccess">
+            <t t-call-assets="web.assets_common"/>
+            <t t-call-assets="web.assets_backend"/>
+            <t id="custom_title" name="change title" inherit_id="web.layout">
+                <xpath expr="//title" position="replace">
+                    <title>Payment Receipt</title>
+                </xpath>
+            </t>
+            <t t-call="web.layout">
+                <t t-set="head">
+                    <title>Payments</title>
+                    <link rel="stylesheet" href="/authorize_net_integration/static/src/css/payment.css"/>
+                    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                </t>
+                <div class='page'>
+                    <div>
+                        <p class="oe_form_paragraph"></p>
+                        <div class="edi_container receipt">
+                            <div class="oe_edi_paperbox receipt">
+                                <h1 style="color:#2f5571;" class="oe_edi_doc_title ">Payment Receipt</h1>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="well col-xs-10 col-sm-10 col-md-6 col-xs-offset-1 col-sm-offset-1 col-md-offset-3"
+                                             id="receipt">
+                                            <div class="row">
+                                                <div class="col-xs-6 col-sm-6 col-md-6">
+                                                    <p>
+                                                        <em>Date:
+                                                            <span t-esc="datetime.datetime.now().date()"></span>
+                                                        </em>
+                                                    </p>
+                                                </div>
+                                                <div class="col-xs-6 col-sm-6 col-md-6 text-right">
+                                                    <p>
+                                                        <em>Transaction Id #:
+                                                            <span t-esc="invoice_ids[0].transaction_id"></span>
+                                                        </em>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div>
+                                                    <table class="table table-condensed">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Invoice</th>
+                                                                <th>Paid Amount</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <p>
+                                                            <h4>The Following is your paid invoice</h4>
+                                                        </p>
+                                                        <t t-foreach="invoice_ids" t-as="num">
+                                                            <tr>
+                                                                <td>
+                                                                    <t t-esc="num.number"></t>
+                                                                </td>
+                                                                <td>
+                                                                    $
+                                                                    <t t-esc="'%.2f'%(num.due_amount_authorize)"></t>
+                                                                </td>
+                                                            </tr>
+                                                        </t>
+                                                    </table>
+                                                    <span>
+                                                        <h3>Total Amount Paid: $
+                                                            <t t-esc="amount"></t>
+                                                        </h3>
+                                                    </span>
+                                                </div>
+                                                <div class="print">
+                                                    <h1 style="color:#2f5571;text-align:center;">
+                                                        Thank you for your payment.
+                                                    </h1>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="well col-xs-10 col-sm-10 col-md-6 col-xs-offset-1 col-sm-offset-1 col-md-offset-3">
+                                            <button type="button" id="print"
+                                                    class="btn btn-primary btn-md o_website_form_send">Print Receipt
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
+

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="external_layout_invoice_new_box">
+            <div class="header">
+                <div>
+<!--                 class="o_boxed_header"-->
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="width:30%; vertical-align:middle;">
+                                <img style="max-width:140px;" t-if="company.logo" t-att-src="image_data_uri(company.logo)"  alt="Logo"/>
+                            </td>
+                            <td style="width:30%; text-align:center; vertical-align:middle;">
+                                <h1 style="font-weight: 300;font-size: 32px;color: #7b7b7b;font-weight: 400;" t-if="o._name == 'account.invoice'">INVOICE</h1>
+                                <h1 style="font-weight: 300;font-size: 32px;color: #7b7b7b;font-weight: 400;" t-if="o._name == 'account.payment'">RECEIPT</h1>
+                            </td>
+                            <td style="width:40%; text-align:right; color: #616161; font-size: 12px">
+                                                            <h4 class="mt0" t-field="company.report_header"/>
+                            <div name="company_address" class="mb4">
+                                <span t-esc="company.partner_id.street"/><span>,</span>
+                                <span t-esc="company.partner_id.city"/>
+                                <div>
+                                    <span t-esc="company.partner_id.state_id.name"/>
+                                    <span> - </span>
+                                    <span t-esc="company.partner_id.zip"/>
+                                </div>
+                                <div>
+                                    <a t-att-href="company.partner_id.website"><t t-esc="company.partner_id.website"/></a>
+                                </div>
+                                <div>
+                                    Call:-
+                                    <span t-esc="company.partner_id.phone"/>
+                                </div>
+                                <div>
+                                    Email:-
+                                    <a t-att-href="company.partner_id.email"><t t-esc="company.partner_id.email"/></a>
+                                </div>
+    <!--                            <span class="company_address" t-field="company.partner_id"-->
+    <!--                                t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": true}'/>-->
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <img style="max-width:100%; display:block; margin-bottom:30px;" src="/project_extension/static/src/img/confianz_color_bar.png" alt=""/>
+                </div>
+            </div>
+
+            <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+<!--            o_report_layout_boxed-->
+<!--                <t t-call="web.address_layout"/>-->
+                <t t-raw="0"/>
+            </div>
+            
+            <div class="footer" style="font-size:14px; color: #5d5d5d"> <!-- o_boxed_footer -->
+                <div class="text-center">
+<!--                    <ul class="list-inline">-->
+<!--                        <li t-if="company.phone" class="list-inline-item">Tel: <span t-field="company.phone"/></li>-->
+<!--                        <li t-if="company.email" class="list-inline-item">Mail: <span t-field="company.email"/></li>-->
+<!--                        <li t-if="company.website" class="list-inline-item">Web: <span t-field="company.website"/></li>-->
+<!--                        <li t-if="company.vat" class="list-inline-item"><t t-esc="company.country_id.vat_label or 'Tax ID'"/>: <span t-field="company.vat"/></li>-->
+<!--                    </ul>-->
+                    <div class="container">
+<!--                     style="margin-right:-125px;"-->
+                        <div class="row" style="background-color:#edeeef" t-if="o._name == 'account.invoice'">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                                <b>Wire/ACH Info:</b><br/>
+                                BB&amp;T<br/>
+                                2040 Village View Cir. , Belmont<br/>
+                                North Carolina - 28012<br/>
+                                Beneficiary Account No:- <b>5204133575</b><br/>
+                                SWIFT Code:- <b>BRBTUS33</b><br/>
+                                Routing:- <b>053101121</b>
+                            </div>
+                        </div>
+                    </div>
+                    <span>
+                        You can also pay by Credit Cards. Please contact us for more info
+                        <br/>
+                        <center>Thank you for choosing Confianz!</center>
+                    </span>
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+                <img style="width:100%;" src="/project_extension/static/src/img/confianz_color_bar.png" alt=""/>
+            </div>
+        </template>
+
+         <record id="base.paperformat_euro" model="report.paperformat">
+            <field name="margin_top">40</field>
+            <field name="margin_bottom">60</field>
+        </record>
+
+        <record id="base.main_company" model="res.company">
+           <field name="external_report_layout_id" ref="project_extension.external_layout_invoice_new_box"/>
+        </record>
+
+        <record id="account.account_invoices" model="ir.actions.report">
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
+        <record id="account.account_invoices_without_payment" model="ir.actions.report">
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+        </record>
+
+         <report
+            id="account.account_invoices"
+            model="account.invoice"
+            string="Invoices"
+            report_type="qweb-pdf"
+            name="project_extension.report_invoice_document_with_payments_inherits"
+            file="project_extension.report_invoice_document_with_payments_inherits"
+            attachment="(object.state in ('open','in_payment','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
+            print_report_name="(object._get_report_base_filename())"
+            groups="account.group_account_invoice"
+        />
+        <report
+            id="account.account_invoices_without_payment"
+            model="account.invoice"
+            string="Invoices without Payment"
+            report_type="qweb-pdf"
+            name="project_extension.report_invoice_document_project_extension"
+            file="project_extension.report_invoice_document_project_extension"
+            attachment="(object.state in ('open','in_payment','paid')) and ('INV'+(object.number or '').replace('/','')+'.pdf')"
+            print_report_name="(object._get_report_base_filename())"
+        />
+
+    </data>
+</odoo>

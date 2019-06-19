@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- view inheritted for adding additional fields in account.invoice-->
+
+        <record id="view_account_invoice_inherited_form_view" model="ir.ui.view">
+            <field name="name">account.invoice.form</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.invoice_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//page[2]" position='after'>
+                    <page string='Authorize.Net' groups="authorize_net_integration.group_invoice_correction" >
+
+                        <group col="4" colspan="2">
+                            <field name="transaction_id" string="Authorize.Net Transaction ID" readonly="1"
+                                   attrs="{'invisible':[('transaction_id','=', False)]}"/>
+<!--                            <field name="payment_id" string="Authorize.Net Payment Profile ID" readonly="1"-->
+<!--                                   attrs="{'invisible':[('payment_id','=', False)]}"/>-->
+                            <!--<field  name="invoice_number" invisible="1"/>-->
+                            <field name="transaction_date" readonly="1"
+                                   attrs="{'invisible':[('transaction_date','=', False)]}"/>
+<!--                            <field name='parent_invoice_id' invisible="1"/>-->
+                            <field name='is_refund' readonly="1" attrs="{'invisible':[('is_refund','=', False)]}"/>
+                            <field name='transaction_id_refund' readonly="1" attrs="{'invisible':[('transaction_id_refund','=', False)]}"/>
+
+                        </group>
+                        <button name="%(authorize_net_integration.action_make_payment_wizard)d"
+                                string="Authorize Payment"
+                                groups="authorize_net_integration.group_invoice_correction"
+                                type="action"
+                                attrs="{'invisible':['|', ('state','!=', 'open'),('type','=','out_refund')]}"
+                                context="{'default_partner_id':partner_id}"/>
+                        <!--<button name="%(account.action_account_invoice_refund)d"-->
+                                <!--groups="authorize_net_integration.group_invoice_correction" string="Refund Payment"-->
+                                <!--type="action" context="{'auth_id':False,'default_refund_mode':'auth_net'}"-->
+                                <!--attrs="{'invisible':['|','|',('state','!=', 'paid'),('type','=','out_refund'),('is_refund','=',True)]}"-->
+                                <!--/>-->
+
+<!--                        <button name="resend_link" style="margin-left:.5cm;" string="Send Link"-->
+<!--                                 type="object" class="btn-primary"-->
+<!--                                attrs="{'invisible':['|',('state','!=', 'open'),('type','=','out_refund')]}"/>-->
+
+                        <!--<button  name="%(action_make_payment_wizard)d" string="Recreate Transaction" type="action" groups="authorize_net_integration.group_invoice_correction" context="{'default_partner_id':partner_id, 'default_is_correction':True, 'default_payment_id':payment_id}" attrs="{'invisible':['|',('state','in',('cancel','paid')), ('transaction_id','=', False)]}"/>-->
+
+                    </page>
+                </xpath>
+                <xpath expr="//button[5]" position="attributes">
+                    <attribute name="context">{'refund_mode':True}</attribute>
+                </xpath>
+
+
+            </field>
+
+        </record>
+
+
+        <!--inherited filter for adding transaction_id, subscription id in filter-->
+        <record id="view_account_invoice_filter_inherited" model="ir.ui.view">
+            <field name="name">account.invoice.filter.inherit</field>
+            <field name="model">account.invoice</field>
+            <field name="inherit_id" ref="account.view_account_invoice_filter"/>
+            <field name="arch" type="xml">
+
+                <field name="partner_id" position="replace"/>
+                <field name="number" position="before">
+                    <field name="partner_id" operator="child_of"/>
+                </field>
+
+                <field name="number" position="after">
+                    <field name="transaction_id" string="Transaction ID"/>
+                </field>
+
+            </field>
+        </record>
+
+
+    </data>
+</odoo>
