@@ -2,9 +2,8 @@
 <odoo>
     <data>
        <record id="base.paperformat_euro" model="report.paperformat">
-
             <field name="margin_top">40</field>
-            <field name="margin_bottom">50</field>
+            <field name="margin_bottom">60</field>
         </record>
         <record id="base.main_company" model="res.company">
            <field name="external_report_layout_id" ref="project_extension.external_layout_invoice_new_box"/>

@@ -1,3 +1,8 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_proposal_version_user,proposal.version.user,model_proposal_version,base.group_user,1,1,1,1
 access_project_milestone_user,project.milestone.user,model_project_milestone,base.group_user,1,1,1,1
+access_ir_config_parameter_system_project,ir_config_parameter_system_project,base.model_ir_config_parameter,project.group_project_user,1,1,1,1
+access_ir_sequence_project_user_group,ir.sequence_project_extension,base.model_ir_sequence,project.group_project_manager,1,1,1,1
+access_product_product_project_manager,product.product project manager,product.model_product_product,project.group_project_manager,1,1,1,1
+access_product_template_project_manager,product.template project manager,product.model_product_template,project.group_project_manager,1,1,1,1
+access_product_price_history_project_manager,product.price.history project manager,product.model_product_price_history,project.group_project_manager,1,1,1,1

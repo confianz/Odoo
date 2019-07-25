@@ -152,7 +152,7 @@
                     <t t-if="len(payments_vals) > 0">
                         <t t-foreach="payments_vals" t-as="payment_vals">
                             <tr style="background-color:#4daecc">
-                                    <td style="color:white; font-weight:600;">PAID ON (<t style="font-size:12px;" t-esc="payment_vals['date']"/>)</td>
+                                    <td style="color:white; font-weight:400;font-size:14px;">PAID ON (<t style="font-size:12px;" t-esc="payment_vals['date']"/>)</td>
                                     <td class="text-center">
                                         <span t-esc="payment_vals['amount']" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
                                     </td>

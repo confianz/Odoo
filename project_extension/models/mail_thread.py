@@ -14,14 +14,22 @@ class MailThread(models.AbstractModel):
         message = super(MailThread, self).message_post(**kwargs)
         if message.model == 'proposal.version' and message.res_id:
             proposal = self.env['proposal.version'].browse(message.res_id)
+            if proposal.project_id.state =='send_to_customer':
+                message.write({'project_partner_id': proposal.project_id.partner_id.id})
+
             if proposal.project_id:
                 context = dict(self._context)
                 project = proposal.project_id
                 context.update({'default_res_id': project.id})
                 project.with_context(context).message_post(**kwargs)
         return message
-        
-        
+
+class Message(models.Model):
+
+    _inherit = 'mail.message'
+
+    project_partner_id = fields.Many2one('res.partner', string = "Project Customer")
+
 #    @api.model
 #    def message_new(self, msg_dict, custom_values=None):
 #        if self._name == "crm.lead":

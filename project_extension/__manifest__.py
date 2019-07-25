@@ -15,6 +15,7 @@
                 'views/crm_lead.xml',
                 'views/proposal_version.xml',
                 'views/project_milestone.xml',
+                'security/project_security.xml',
                 'security/ir.model.access.csv',
                 'data/mail_template.xml',
                 'data/cron.xml',
@@ -27,6 +28,7 @@
                 'views/hr_timesheet_templates.xml',
                 'report/external_report_layout.xml',
                 'report/report_invoice.xml',
+                'data/demo_data.xml',
             ],
     'qweb': [
         'static/src/xml/timesheet_plan.xml',

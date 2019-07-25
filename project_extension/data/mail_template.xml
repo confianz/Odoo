@@ -81,7 +81,7 @@
 <!--        ${ctx.get('partner').name}-->
         Dear User,
         <br /><br />
-        Here is your
+        Here is the
         % if object.number:
             invoice <strong>${object.number}</strong>
         % else:

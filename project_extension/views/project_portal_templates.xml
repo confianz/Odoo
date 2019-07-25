@@ -89,7 +89,7 @@
                                 </form>
                             </div>
                         </div>
-                        <div class="alert  alert-dismissible fade show" role="alert">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
                           If unable to view PDF, please change the browser settings to "View PDF in Browser". Mobile devices not supported.
                           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span>&amp;times;</span>
@@ -209,12 +209,12 @@
                                 </form>
                             </div>
                         </div>
-<!--                        <div class="alert alert-warning alert-dismissible fade show" role="alert">-->
-<!--                          If unable to view PDF, please change the browser settings to "View PDF in Browser". Mobile devices not supported.-->
-<!--                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">-->
-<!--                            <span>&amp;times;</span>-->
-<!--                          </button>-->
-<!--                        </div>-->
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                          If unable to view PDF, please change the browser settings to "View PDF in Browser". Mobile devices not supported.
+                          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span>&amp;times;</span>
+                          </button>
+                        </div>
                             <img t-if="proposal_version.check_attachment_mimetype() == 'image'" t-att-src="proposal_version.get_attachment_url()" width="800px" height="800px"/>
                             <embed t-elif="proposal_version.check_attachment_mimetype() == 'pdf'" t-att-src="proposal_version.get_attachment_url()" width="800px" height="800px" type="application/pdf" class="o_field_pdfviewer o_pdfview_iframe"/>
                         <t>
@@ -229,17 +229,16 @@
                             </div>
                         </t>
                         </div>
-<!--                        <div id="project_communication" class="mt-4">-->
-<!--                                <h2>Communication</h2>-->
-<!--                                <t t-call="portal.message_thread">-->
-<!--                                    <t t-set="object" t-value="proposal_version"/>-->
-<!--                                    <t t-set="token" t-value="token"/>-->
-<!--                                    <t t-set="pid" t-value="partner_id"/>-->
-<!--                                    <t t-set="allow_composer" t-value="1"/>-->
-<!--                                    <t t-set="display_composer" t-value="token"/>-->
-<!--                                    <t t-set="domain" t-value="[('message_ids.body', 'ilike', self)]"/>-->
-<!--                                </t>-->
-<!--                        </div>-->
+                        <div id="project_communication" class="mt-4">
+                                <h2>Communication</h2>
+                                <t t-call="portal.message_thread">
+                                    <t t-set="object" t-value="proposal_version"/>
+                                    <t t-set="token" t-value="token"/>
+                                    <t t-set="pid" t-value="partner_id"/>
+                                    <t t-set="allow_composer" t-value="1"/>
+                                    <t t-set="display_composer" t-value="token"/>
+                                </t>
+                        </div>
                     </div>
                 </div>
             </xpath>

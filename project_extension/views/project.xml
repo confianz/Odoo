@@ -8,13 +8,35 @@
             <field name='arch' type='xml'>
             
                 <xpath expr='//header' position='inside'>
-                    <button string='Waiting Proposal' type='object' name='action_waiting_proposal' attrs="{'invisible':[('state', 'not in', ['draft', 'customer_rejected'])]}" class='oe_highlight'/>
-                    <button string='Add Proposal' type='action' name='%(project_extension.user_proposal_wizard_action)d' class='oe_highlight' attrs="{'invisible': [('state', '!=', 'waiting_proposal')]}" context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}" />
-                    <button string='Send Proposal to customer' type='object' name='action_send_proposal_to_customer' class='oe_highlight' attrs="{'invisible':[('state', '!=', 'proposal_approved')]}" context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}"/>
-                    <button string='Create Invoice' class='oe_highlight' type='action' attrs="{'invisible':[('state', '!=', 'proposal_accepted')]}" name="%(project_extension.project_invoice_wizard_action)d" context="{'default_project_id': id, 'default_partner_id': partner_id}"/>
-                    <button string="Close Project" type="object" name="action_close_project" attrs="{'invisible': [('state', '!=', 'proposal_accepted')]}" confirm="Are You sure to close this Project?"/>
-                    <button string='Cancel' type='object' name='action_set_to_cancel' attrs="{'invisible':[('state', 'in', ['proposal_accepted', 'closed', 'cancel'])]}"/>
-                    <field name='state' widget='statusbar' readonly='1' statusbar_visible="waiting_proposal,waiting_approval,proposal_approved,send_to_customer,proposal_accepted"/>
+                    <button string='Waiting Proposal' type='object' name='action_waiting_proposal'
+                            attrs="{'invisible':[('state', 'not in', ['draft', 'customer_rejected'])]}"
+                            class='oe_highlight'/>
+                    <button string='Add Proposal' type='action' name='%(project_extension.user_proposal_wizard_action)d'
+                            class='oe_highlight' attrs="{'invisible': [('state', '!=', 'waiting_proposal')]}"
+                            context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}"/>
+                    <button string='Approve Proposal' type='object' name='action_direct_user_proposal_accept'
+                            groups='project_extension.group_proposal_user_approval' class='oe_highlight'
+                            attrs="{'invisible':[('state', '!=', 'waiting_approval')]}"
+                            />
+                    <button string='Project Accepted' type='object'
+                            name='action_direct_customer_proposal_accept'
+                            groups='project_extension.group_customer_proposal_approval' class='oe_highlight'
+                            attrs="{'invisible':[('state', '!=', 'send_to_customer')]}"
+                            />
+                    <button string='Send Proposal to customer' type='object' name='action_send_proposal_to_customer'
+                            class='oe_highlight' attrs="{'invisible':[('state', '!=', 'proposal_approved')]}"
+                            context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}"/>
+                    <button string='Create Invoice' class='oe_highlight' type='action'
+                            attrs="{'invisible':[('state', '!=', 'proposal_accepted')]}"
+                            name="%(project_extension.project_invoice_wizard_action)d"
+                            context="{'default_project_id': id, 'default_partner_id': partner_id}"/>
+                    <button string="Close Project" type="object" name="action_close_project"
+                            attrs="{'invisible': [('state', '!=', 'proposal_accepted')]}"
+                            confirm="Are You sure to close this Project?"/>
+                    <button string='Cancel' type='object' name='action_set_to_cancel'
+                            attrs="{'invisible':[('state', 'in', ['proposal_accepted', 'closed', 'cancel'])]}"/>
+                    <field name='state' widget='statusbar' readonly='1'
+                           statusbar_visible="waiting_proposal,waiting_approval,proposal_approved,send_to_customer,proposal_accepted"/>
                 </xpath>
                 
                 <xpath expr="//div[@name='button_box']" position='inside'>
@@ -28,7 +50,7 @@
                         <field name='invoice_count' widget='statinfo' string='Invoices'/>
                     </button>
                 </xpath>
-                
+
                 <xpath expr='//sheet' position='after'>
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
