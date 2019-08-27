@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+
+    <record id="view_hr_job_form_inherit_extension" model="ir.ui.view">
+        <field name="name">hr.job.form.inherit.recruitment.extension</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr.view_hr_job_form" />
+        <field name="arch" type="xml">
+            <field name="address_id" position="after">
+                <field name="country_id" string="Job Location" />
+                <field name="location" invisible="1" />
+                <field name="loc_code" invisible="1" />
+            </field>
+
+            <field name="address_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+
+            <field name="hr_responsible_id" position="after">
+                <field name="job_description" string="Job Summary" />
+            </field>
+
+            <xpath expr="//field[@name='description']/.." position="replace">
+                <notebook>
+                    <page name="description" string="Job Description">
+                        <group>
+                            <field name="description" widget="html" nolabel="1" />
+                        </group>
+                    </page>
+                </notebook>
+            </xpath>
+
+        </field>
+    </record>
+
+</odoo>
