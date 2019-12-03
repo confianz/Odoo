@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<odoo>
+    <data>
+        <record id='wbs_project_template_form_view' model='ir.ui.view'>
+            <field name='name'>wbs.project.template.form</field>
+            <field name='model'>wbs.project.template</field>
+            <field name='arch' type='xml'>
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                        <h1><field name="name" class="field_name" placeholder="Template Name..."/></h1>
+                        </div>
+                            <group>
+                                <group string="Wbs Elements" colspan="8">
+                                <field name="wbs_ids" widget='section_and_note_one2many' nolabel="1">
+                                     <tree  editable="bottom">
+                                          <field name="sequence" widget="handle"/>
+                                          <field name='task_name'/>
+                                          <field name="description"/>
+                                          <field name='hour' widget="timesheet_uom"/>
+                                    </tree>
+                                </field>
+                                </group>
+                            </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id='wbs_project_template_tree_view' model='ir.ui.view'>
+            <field name='name'>wbs.project.template.tree.view</field>
+            <field name='model'>wbs.project.template</field>
+            <field name='arch' type='xml'>
+                <tree>
+                      <field name='name'/>
+                      <field name="wbs_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id='wbs_project_action' model='ir.actions.act_window'>
+            <field name='name'>Wbs</field>
+            <field name='res_model'>wbs.project</field>
+            <field name='view_mode'>tree,form</field>
+            <field name="target">main</field>
+        </record>
+        <record id='wbs_project_template_action' model='ir.actions.act_window'>
+            <field name='name'>Wbs Template</field>
+            <field name='res_model'>wbs.project.template</field>
+            <field name="view_type">form</field>
+            <field name='view_mode'>tree,form</field>
+            <field name="target">main</field>
+            <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                    Create a new Wbs Template
+                </p><p>
+                    Wbs allows to organize Project tasks.
+          </p>
+        </field>
+        </record>
+
+        <menuitem id='wbs_project12_base' name='Wbs Templates' sequence='20' action='wbs_project_template_action' parent='project.menu_project_config'/>
+
+    </data>
+</odoo>

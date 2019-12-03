@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id='employee_time_rate_inherit' model='ir.ui.view'>
+            <field name='name'>employee.time.rate</field>
+            <field name='model'>hr.employee</field>
+            <field name='inherit_id' ref='hr.view_employee_form'/>
+            <field name='arch' type='xml'>
+                <xpath expr="//group[@name='timesheet']/div/field[@name='timesheet_cost']" position="attributes">
+                    <attribute name="help">The rate @ which the company pays the employee for 1 hour of work.</attribute>
+                </xpath>
+                <xpath expr="//group[@name='timesheet']" position='inside'>
+                    <label for='employee_rate' string='Employee Work Rate'/>
+                    <div>
+                        <field name='employee_rate' class='oe_inline'/> Per Hour
+                        <field name='currency_id' invisible='1'/>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id='analytic_inv_type_inherit' model='ir.ui.view'>
+            <field name='name'>analytic.invoice.type</field>
+            <field name='model'>account.analytic.line</field>
+            <field name='inherit_id' ref='hr_timesheet.hr_timesheet_line_tree'/>
+            <field name='arch' type='xml'>
+                <xpath expr="//tree/field[@name='task_id']" position='after'>
+                    <field name='billable' required='1'/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

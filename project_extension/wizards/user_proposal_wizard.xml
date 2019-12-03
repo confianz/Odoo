@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<odoo>
+    <data>
+        <record id='user_proposal_wizard_form_view' model='ir.ui.view'>
+            <field name='name'>user.proposal.wizard.form</field>
+            <field name='model'>user.proposal.wizard</field>
+            <field name='arch' type='xml'>
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name='name' invisible='1'/>
+                                <field name='proposed_amount'/>
+                            </group>
+                            <group>
+                                <field name='project_id'/>
+                                <field name='approval_1_user_id'/>
+                                <field name='approval_2_user_id'/>
+                            </group>
+                            <separator string='Proposal Document'/>
+                            <field name='proposal_doc' widget='FieldBinary' filename='file_name'/>
+                            <field name='file_name' invisible='1'/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button type='object' name='proposal_wizard_save' string='Upload' class='oe_highlight'/>
+                        <button string='Cancel' special='cancel'/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        
+        <record id='user_proposal_wizard_action' model='ir.actions.act_window'>
+            <field name='name'>User Proposal Wizard</field>
+            <field name='res_model'>user.proposal.wizard</field>
+            <field name='view_type'>form</field>
+            <field name='view_mode'>form</field>
+            <field name='target'>new</field>
+        </record>
+        
+    </data>
+</odoo>

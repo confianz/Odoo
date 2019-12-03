@@ -1,0 +1,108 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<odoo>
+    <data>
+        <record id="email_template_proj_proposal_user" model="mail.template">
+            <field name="name">Project Proposal: Send for User Approval</field>
+            <field name="model_id" ref="project.model_project_project"/>
+            <field name="email_from">${object.user_id.email_formatted |safe}</field>
+            <field name="partner_to">${object.get_approve_users_ids()}</field>
+            <field name="subject">Project Proposal for ${object.name}</field>
+            <field name="body_html" type="html">
+<div>
+    Dear
+    % if object.approval_1_user_id.partner_id == object.approval_2_user_id.partner_id:
+        ${object.approval_1_user_id.partner_id.name},
+    % else:
+        ${object.approval_1_user_id.partner_id.name} and ${object.approval_2_user_id.partner_id.name},
+    % endif
+    <br/><br/>
+    This is the proposal number <strong>${object.proposal_count}</strong> for the Project "<strong>${object.name}</strong>" at amount of <strong>${object.project_cost}</strong>.
+    <br/>
+    Please Find The Attachment to see the Complete Details.
+    <br/><br/>
+    <div>
+        <p>Click on the link below to see the proposal.</p>
+        <a style="display:block;margin-top: 20px; width: 280px; height:20px; margin-left: 0px; color: #DDD; font-family: Verdana, Geneva, sans-serif; font-size: 12px; font-weight: bold; text-align: center; text-decoration: none !important; line-height: 1; padding: 5px 0px 0px 0px; background-color:#21b799; border-radius: 5px 5px; background-repeat: repeat no-repeat;"
+         href="${object.get_user_project_proposal_url()}" target="new">Click Here to see the Proposal</a>
+    </div>
+    <br></br>
+    Thank you.
+    <br/>
+</div>
+            </field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="True"/>
+        </record>
+        
+        
+        <record id="email_template_proj_proposal_customer" model="mail.template">
+            <field name="name">Project Proposal: Send for Customer Approval</field>
+            <field name="model_id" ref="project.model_project_project"/>
+            <field name="email_from">${object.user_id.email_formatted |safe}</field>
+            <field name="partner_to">${object.partner_id.id}</field>
+            <field name="subject">Proposal from ${object.user_id.company_id.name}</field>
+            <field name="body_html" type="html">
+<div>
+    Hi ${object.partner_id.name}
+        % if object.partner_id.parent_id:
+            (${object.partner_id.parent_id.name})
+        % endif
+        ,
+    <br/><br/>
+    Please review the attached proposal and let us know if you have any questions. We look forward to working with you.
+    <br/><br/>
+    <div>
+        <a style="display:block;margin-top: 20px; width: 280px; height:20px; margin-left: 0px; color: #DDD; font-family: Verdana, Geneva, sans-serif; font-size: 12px; font-weight: bold; text-align: center; text-decoration: none !important; line-height: 1; padding: 5px 0px 0px 0px; background-color:#21b799; border-radius: 5px 5px; background-repeat: repeat no-repeat;"
+         href="${object.get_customer_project_proposal_url()}" target="new">Click Here to see the Proposal</a>
+    </div>
+    <br/><br/>
+    Thank you.
+    <br/>
+</div>
+            </field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="True"/>
+        </record>
+        
+        
+        
+        
+        <record id="email_template_edi_invoice_alerts" model="mail.template">
+            <field name="name">Invoice Alerts: Send by email</field>
+            <field name="model_id" ref="account.model_account_invoice"/>
+            <field name="email_from">${object.user_id.email_formatted |safe}</field>
+            <field name="partner_to">${object.get_invoice_alert_ids()}</field>
+            <field name="subject">${object.company_id.name} Invoice (Ref ${object.number or 'n/a'})</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+<!--        ${ctx.get('partner').name}-->
+        Dear User,
+        <br /><br />
+        Here is the
+        % if object.number:
+            invoice <strong>${object.number}</strong>
+        % else:
+            invoice
+        %endif
+        % if object.origin:
+            (with reference: ${object.origin})
+        % endif
+        amounting in <strong>${format_amount(object.amount_total, object.currency_id)}</strong>
+        from ${object.company_id.name},
+        for the customer <strong>${object.partner_id.name}</strong>.<br/><br/>
+            Please validate the invoice and send it to the customer at your earliest convenience.
+        <br /><br />
+        </p>
+</div>
+            </field>
+            <field name="report_template" ref="account.account_invoices"/>
+            <field name="report_name">Invoice_${(object.number or '').replace('/','_')}${object.state == 'draft' and '_draft' or ''}</field>
+            <field name="lang">${object.partner_id.lang}</field>
+            <field name="user_signature" eval="False"/>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>
