@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id="project_task_milestone_inherit" model="ir.ui.view">
+            <field name="name">project.task.milestone.inherit</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook/page[@name='extra_info']/group/group[2]/field[@name='date_last_stage_update']" position="after">
+                    <field name="project_type" invisible="1"/>
+                    <field name="milestone_id" attrs="{'invisible': [('project_type', '!=', 'milestone')]}"/>
+                </xpath>
+                <xpath expr="//notebook/page[2]/field[@name='timesheet_ids']/tree/field[@name='name']" position='after'>
+                    <field name='billable' required='1'/>
+                </xpath>
+            </field>
+        </record>
+        
+    </data>
+</odoo>

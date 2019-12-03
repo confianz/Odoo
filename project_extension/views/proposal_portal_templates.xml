@@ -1,0 +1,104 @@
+<odoo>
+    <template id="portal_layout" name="Portal layout : proposal menu entries" inherit_id="portal.portal_breadcrumbs" priority="30">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li t-if="page_name == 'proposals' or proposal" t-attf-class="breadcrumb-item #{'active ' if not proposal else ''}">
+                <a t-if="proposal" t-attf-href="/my/proposals?{{ keep_query() }}">Proposals</a>
+                <t t-else="">Proposals</t>
+            </li>
+            <li t-if="proposal" class="breadcrumb-item active">
+                <t t-esc="proposal.name"/>
+            </li>
+        </xpath>
+    </template>
+    <template id="portal_my_home_proposals" name="Portal My Home : Proposal Documents" inherit_id="portal.portal_my_home" priority="39">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="title">Proposals</t>
+                <t t-set="url" t-value="'/my/proposals'"/>
+                <t t-set="count" t-value="proposal_count"/>
+            </t>
+        </xpath>
+    </template>
+    <template id="portal_my_proposals" name="My Proposals">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Proposals</t>
+            </t>
+            <t t-if="not grouped_proposals">
+                <div class="alert alert-warning mt8" role="alert">
+                    There are no proposals.
+                </div>
+            </t>
+            <t t-if="grouped_proposals">
+                <t t-call="portal.portal_table">
+                    <t t-foreach="grouped_proposals" t-as="proposals">
+                         <thead>
+                                <tr t-attf-class="{{'thead-light' if not groupby == 'none' else ''}}">
+                                    <th t-if="groupby == 'none'">Name</th>
+                                    <th t-else="">
+                                        <em class="font-weight-normal text-muted"><span>Proposals</span> for project:</em>
+                                        <span t-field="proposals[0].sudo().project_id.name"/>
+                                    </th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                         </thead>
+                        <tbody>
+                            <t t-foreach="proposals" t-as="proposal">
+                                <tr>
+                                <td>
+                                    <a t-attf-href="/my/proposal/#{proposal.id}?{{ keep_query(access_token= proposal.access_token if proposal.access_token else proposal._portal_ensure_token()) }}"><span t-field="proposal.name"/></a>
+
+                                </td>
+                                <td class="tx_status text-center">
+                                    <t t-if="proposal.sudo().state == 'waiting_approval'">
+                                        <span class="badge badge-pill badge-info"><i class="fa fa-fw fa-clock-o" aria-label="Paid" title="Paid" role="img"></i><span class="d-none d-md-inline"> Waiting for User Approval </span></span>
+                                    </t>
+                                    <t t-elif="proposal.sudo().project_id.user_approved_proposal_id == proposal and proposal.sudo().project_id.state == 'proposal_approved'">
+                                        <span class="badge badge-pill badge-success"><i class="fa fa-fw fa-check" aria-label="Paid" title="Paid" role="img"></i><span class="d-none d-md-inline"> User Approved</span></span>
+                                    </t>
+                                     <t t-elif="proposal.sudo().project_id.customer_accepted_proposal_id == proposal">
+                                        <span class="badge badge-pill badge-success"><i class="fa fa-fw fa-check" aria-label="Paid" title="Paid" role="img"></i><span class="d-none d-md-inline"> Accepted by Customer</span></span>
+                                    </t>
+                                    <t t-elif="proposal.sudo().state == 'rejected'">
+                                        <span class="badge badge-pill badge-danger"><i class="fa fa-fw fa-remove" aria-label="proposal waiting" title="Proposal Waiting" role="img"></i><span class="d-none d-md-inline"> Rejected by User</span></span>
+                                    </t>
+                                    <t t-elif="proposal.sudo().project_id.customer_accepted_proposal_id != proposal and proposal.sudo().customer_done == True">
+                                        <span class="badge badge-pill badge-danger"><i class="fa fa-fw fa-remove" aria-label="proposal waiting" title="Proposal Waiting" role="img"></i><span class="d-none d-md-inline"> Rejected by Customer</span></span>
+                                    </t>
+                                    <t t-else="else">
+                                        <span class="badge badge-pill badge-info"><i class="fa fa-fw fa-clock-o" aria-label="Paid" title="Paid" role="img"></i><span class="d-none d-md-inline"> Waiting for Customer Approval</span></span>
+                                    </t>
+                                </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </t>
+                </t>
+            </t>
+        </t>
+    </template>
+    <template id="portal_my_proposal" name="Proposal portal template" inherit_id="project_extension.proposal_portal_customer_template" primary="True">
+        <xpath expr="//div[hasclass('o_portal_invoice_sidebar')]" position="after">
+            <div  id="project_communication" style="margin-left:28%;">
+                                <h2>Communication</h2>
+                                <t t-call="portal.message_thread">
+                                    <t t-set="object" t-value="proposal"/>
+                                    <t t-set="token" t-value="access_token"/>
+                                    <t t-set="pid" t-value="partner_id"/>
+                                    <t t-set="allow_composer" t-value="1"/>
+                                    <t t-set="display_composer" t-value="token"/>
+                                </t>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_proposal" name="Portal My Home : proposal entries" inherit_id="project.portal_my_project" priority="30">
+        <xpath expr="//span[hasclass('float-right')]" position="inside">
+            <a role="button" t-attf-href="/my/proposals?{{keep_query('debug', filterby=project.id)}}" class="btn btn-sm btn-secondary">
+                <span class="fa fa-edit" role="img" title="Proposal"><b>Proposal</b></span>
+                            </a>
+        </xpath>
+    </template>
+</odoo>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="group_proposal_user_approval" model="res.groups">
+            <field name="name">Override Proposal Approval</field>
+            <field name="implied_ids" eval="[(4, ref('project.group_project_manager'))]"/>
+            <field name="category_id" ref="base.module_category_hidden"/>
+         </record>
+         
+        <record id="group_customer_proposal_approval" model="res.groups">
+            <field name="name">Override Project Approval</field>
+            <field name="implied_ids" eval="[(4, ref('project.group_project_manager'))]"/>
+            <field name="category_id" ref="base.module_category_hidden"/>
+         </record>
+        <!-- Portal -->
+        <record id="proposal_version_rule_portal" model="ir.rule">
+            <field name="name">Proposal: portal users: portal and following</field>
+            <field name="model_id" ref="project_extension.model_proposal_version"/>
+            <field name="domain_force">[ '&amp;', '&amp;', '&amp;',
+                    ('project_id.privacy_visibility','=','portal'),
+                    ('project_id.message_partner_ids', 'child_of', [user.partner_id.commercial_partner_id.id]),
+                    ('state','=','accepted'),
+                    ('project_id.state','in',['send_to_customer','proposal_accepted','customer_rejected','canceled','closed'])
+            ]</field>
+            <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="external_layout_invoice_new_box">
+            <div class="header">
+                <div>
+                    <table style="width:100%;">
+                        <tr>
+                            <td style="width:30%; vertical-align:middle;">
+                                <img style="max-width:140px;" t-if="company.logo" t-att-src="image_data_uri(company.logo)"  alt="Logo"/>
+                            </td>
+                            <td style="width:30%; text-align:center; vertical-align:middle;">
+                                <h1 style="font-weight: 300;font-size: 32px;color: #7b7b7b;font-weight: 400;" t-if="docs[0]._name == 'account.invoice'">INVOICE</h1>
+                                <h1 style="font-weight: 300;font-size: 32px;color: #7b7b7b;font-weight: 400;" t-if="docs[0]._name == 'account.payment'">RECEIPT</h1>
+                            </td>
+                            <td style="width:40%; text-align:left; color: #616161; font-size: 12px">
+                                                            <h4 class="mt0" t-field="company.report_header"/>
+                            <div name="company_address" class="mb4" style="margin-left:50%;">
+                                <span t-esc="company.partner_id.street"/><span>,</span>
+                                <span t-esc="company.partner_id.street2"/>
+                                <div>
+                                    <span t-esc="company.partner_id.city"/>
+                                    <span> , </span>
+                                    <span t-esc="company.partner_id.state_id.code"/>
+                                    <span t-esc="company.partner_id.zip"/>
+                                </div>
+                                <div>
+                                    <a t-att-href="company.partner_id.website"><t t-esc="company.partner_id.website"/></a>
+                                </div>
+                                <div>
+                                    Call:-
+                                    <span t-esc="company.partner_id.phone"/>
+                                </div>
+                                <div>
+                                    Fax:-704-919-5033
+                                </div>
+                                <div>
+                                    Email:-<a>invoice@confianzit.com</a>
+                                </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <img style="max-width:100%; display:block; margin-bottom:30px;" src="/project_extension/static/src/img/confianz_color_bar.png" alt=""/>
+                </div>
+            </div>
+
+            <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <t t-raw="0"/>
+            </div>
+            
+            <div class="footer" style="font-size:14px; color: #5d5d5d"> 
+                <div class="text-center">
+                    <div class="container">
+                        <div class="row" style="background-color:#edeeef" t-if="docs[0]._name == 'account.invoice'">
+                            <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
+                                <b>Wire/ACH Info:</b><br/>
+                                BB&amp;T<br/>
+                                2040 Village View Cir. , Belmont<br/>
+                                North Carolina - 28012<br/>
+                                Beneficiary Account No:- <b>5204133575</b><br/>
+                                SWIFT Code:- <b>BRBTUS33</b><br/>
+                                Routing:- <b>053101121</b>
+                            </div>
+                        </div>
+                    </div>
+                    <span>
+                        You can also pay by Credit Cards. Please contact us for more info
+                        <br/>
+                        <center>Thank you for choosing Confianz!</center>
+                    </span>
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+                <img style="width:100%;" src="/project_extension/static/src/img/confianz_color_bar.png" alt=""/>
+            </div>
+        </template>
+
+        <record id="base.main_company" model="res.company">
+           <field name="external_report_layout_id" ref="project_extension.external_layout_invoice_new_box"/>
+        </record>
+
+    </data>
+</odoo>

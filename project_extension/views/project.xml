@@ -1,0 +1,172 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <data>
+        <record id='project_view_inherit' model='ir.ui.view'>
+            <field name='name'>project.view.inherit</field>
+            <field name='model'>project.project</field>
+            <field name='inherit_id' ref='project.edit_project'/>
+            <field name='arch' type='xml'>
+            
+                <xpath expr='//header' position='inside'>
+                    <button string='Waiting Proposal' type='object' name='action_waiting_proposal'
+                            attrs="{'invisible':[('state', 'not in', ['draft', 'customer_rejected'])]}"
+                            class='oe_highlight'/>
+                    <button string='Add Proposal' type='action' name='%(project_extension.user_proposal_wizard_action)d'
+                            class='oe_highlight' attrs="{'invisible': [('state', '!=', 'waiting_proposal')]}"
+                            context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}"/>
+                    <button string='Approve Proposal' type='object' name='action_direct_user_proposal_accept'
+                            groups='project_extension.group_proposal_user_approval' class='oe_highlight'
+                            attrs="{'invisible':[('state', '!=', 'waiting_approval')]}"
+                            />
+                    <button string='Project Accepted' type='object'
+                            name='action_direct_customer_proposal_accept'
+                            groups='project_extension.group_customer_proposal_approval' class='oe_highlight'
+                            attrs="{'invisible':[('state', '!=', 'send_to_customer')]}"
+                            />
+                    <button string='Send Proposal to customer' type='object' name='action_send_proposal_to_customer'
+                            class='oe_highlight' attrs="{'invisible':[('state', '!=', 'proposal_approved')]}"
+                            context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}"/>
+                    <button string='Create Invoice' class='oe_highlight' type='action'
+                            attrs="{'invisible':[('state', '!=', 'proposal_accepted')]}"
+                            name="%(project_extension.project_invoice_wizard_action)d"
+                            context="{'default_project_id': id, 'default_partner_id': partner_id}"/>
+                    <button string="Close Project" type="object" name="action_close_project"
+                            attrs="{'invisible': [('state', '!=', 'proposal_accepted')]}"
+                            confirm="Are You sure to close this Project?"/>
+                    <button string='Cancel' type='object' name='action_set_to_cancel'
+                            attrs="{'invisible':[('state', 'in', ['proposal_accepted', 'closed', 'cancel'])]}"/>
+                    <field name='state' widget='statusbar' readonly='1'
+                           statusbar_visible="waiting_proposal,waiting_approval,proposal_approved,send_to_customer,proposal_accepted"/>
+                </xpath>
+                
+                <xpath expr="//div[@name='button_box']/button[@name='toggle_active']" position='before'>
+                    <button type='object' name='action_open_proposal' context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}" icon='fa-file-archive-o' attrs="{'invisible': ['|', ('state', '=', 'draft'), ('proposal_count', '=', 0)]}">
+                        <field name='proposal_count' widget='statinfo' string='Proposals'/>
+                    </button>
+                    <button type='object' name='action_open_milestone' context="{'default_project_id': id}" icon='fa-map-signs'>
+                        <field name='milestone_count' widget='statinfo' string='Milestones' attrs="{'invisible': [('project_type', '!=', 'milestone')]}"/>
+                    </button>
+                    <button type='object' name='action_open_invoice' context="{'default_project_id': id}" icon='fa-pencil-square-o' attrs="{'invisible': [('invoice_count', '=', 0)]}">
+                        <field name='invoice_count' widget='statinfo' string='Invoices'/>
+                    </button>
+                </xpath>
+
+                <xpath expr='//sheet' position='after'>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids" widget="mail_followers"/>
+                        <field name="message_ids" widget="mail_thread"/>
+                    </div>
+                </xpath>
+                <xpath expr='//notebook' position='inside'>
+                    <page name='project_info' string='Info'>
+                        <group>
+                            <group>
+                                <field name="project_code" attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='project_cost' attrs="{'readonly':['|', ('state', 'in', ['customer_rejected', 'cancel', 'closed']), '&amp;', ('project_type', '=', 'time_sheet'), ('state', '=', 'proposal_accepted')]}"/>
+                                <field name='lead_id' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='invoiced_amount' attrs="{'invisible': [('invoiced_amount', '=', 0)]}" readonly='1'/>
+                            </group>
+                            <group>
+                                <field name='project_type' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])], 'required':[('state', '=', 'waiting_proposal')]}" widget='radio'/>
+                            </group>
+                            <group>
+                                <field name='date_start' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                            </group>
+                            <group>
+                                <field name='date_end' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name="project_close_date" attrs="{'invisible': [('state', '!=', 'closed')]}" readonly='1'/>
+                            </group>
+                            <separator string='Approval' colspan="4"/>
+                            <group>
+                                <field name='approval_1_user_id' attrs="{'required': [('state', 'not in', 'draft')], 'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='user_1_approved' readonly='1'/>
+                                <field name='user_approved_proposal_id' attrs="{'invisible': [('user_approved_proposal_id', '=', False)], 'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                            </group>
+                            <group>
+                                <field name='approval_2_user_id' attrs="{'required': [('state', 'not in', 'draft')], 'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='user_2_approved' readonly='1'/>
+                                <field name='customer_accepted_proposal_id' attrs="{'invisible': [('customer_accepted_proposal_id', '=', False)], 'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
+                            </group>
+                        </group>
+                        
+                        <group string="Invoice" name='invoice'>
+                            <group>
+                                <field name='invoice_alert_ids' widget='many2many_tags' attrs="{'required': [('state', '=', 'proposal_accepted')]}"/>
+                            </group>
+                            <group>
+                                <field name='product_id' attrs="{'required': ['|', ('project_type', 'in', ['fte', 'milestone']), ('state', '=', 'proposal_accepted')], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}" domain="[('type', '=', 'service')]"/>
+                            </group>
+                            <group>
+                                <field name='billing_frequency' attrs="{'invisible': [('project_type', 'in', [False, 'milestone'])], 'required': ['&amp;', ('state', '=', 'proposal_accepted'), ('project_type', 'in', ['fte', 'time_sheet'])], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='weekday_bill' attrs="{'invisible': ['|', ('project_type', 'in', [False, 'milestone']), ('bill_mode', '=', 'specific_date')], 'required': ['&amp;', ('state', '=', 'proposal_accepted'), ('project_type', 'in', ['fte', 'time_sheet'])], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='last_billed_date' attrs="{'invisible': [('project_type', 'in', [False, 'milestone'])]}" readonly='1'/>
+                            </group>
+                            <group>
+                                <field name='bill_mode' attrs="{'invisible': [('project_type', 'in', [False, 'milestone'])], 'required': ['&amp;', ('state', '=', 'proposal_accepted'), ('project_type', 'in', ['time_sheet', 'fte'])], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}"/>
+                                <field name='next_billing_date' attrs="{'invisible': [('project_type', 'in', [False, 'milestone'])], 'required': ['&amp;', ('state', '=', 'proposal_accepted'), ('bill_mode', '=', 'specific_date')], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page string="Wbs Elements">
+                        <group>
+                            <group>
+                                <button name="%(project_extension.wbs_template_picker_action)d" class='oe_highlight' type="action" context="{'default_project_id':active_id}" string="Add Wbs Template"/>
+                            </group>
+                            <group colspan="10" string="Wbs Elements">
+                                <field name="wbs_line_ids" widget='one2many_list' nolabel="1" force_save="True" attr="{'invisible':[('wbs_line_ids','=','False')]}">
+                                             <tree editable="bottom">
+                                                  <field name="sequence" widget="handle"/>
+                                                  <field name='task_name'/>
+                                                  <field name='description'/>
+                                                  <field name='hour' widget="timesheet_uom"/>
+                                            </tree>
+                                 </field>
+                            </group>
+                        </group>
+
+                    </page>
+                </xpath>
+                
+                <xpath expr="//notebook/page/group[1]/field[@name='partner_id']" position='attributes'>
+                    <attribute name='attrs'>{'required': [('state', '=', 'proposal_approved')]}</attribute>
+                </xpath>
+            </field>
+        </record>
+        <record id="project_project_view_search" model="ir.ui.view">
+        <field name="name">project.project.search.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_project_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="display_name" filter_domain="[('name','=',self)]" string="Exact name"/>
+            </xpath>
+        </field>
+    </record>
+        
+        <record id="project_project_view_kanban_inherit_proj_extn" model="ir.ui.view">
+            <field name="name">project.project.kanban.inherit.proj.extn</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="hr_timesheet.view_project_kanban_inherited"/>
+            <field name="arch" type="xml">
+                <field name="allow_timesheets" position="after">
+                    <field name="project_type" invisible="1"/>
+                </field>
+                <xpath expr="//a[@t-if='record.allow_timesheets.raw_value']" position="after">
+                    <a t-if="record.allow_timesheets.raw_value and record.project_type.raw_value=='time_sheet'" name="action_view_timesheet_overview" type="object" class="o_project_kanban_box o_project_timesheet_box" groups="project.group_project_manager">
+                        <div>
+                            <span class="o_label">DashBoard</span>
+                        </div>
+                    </a>
+                </xpath>
+            </field>
+        </record>
+        
+        <record id="project_timesheet_action_client_timesheet_plan" model="ir.actions.client">
+            <field name="name">Overview</field>
+            <field name="tag">timesheet.dashboard</field>
+            <field name="res_model">project.project</field>
+            <field name="params" eval="{}"/>
+        </record>
+        
+    </data>
+</odoo>
