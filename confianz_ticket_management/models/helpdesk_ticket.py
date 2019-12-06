@@ -7,39 +7,18 @@ from odoo import models, fields, api,tools, _
 
 class HelpdeskTickets(models.Model):
     _inherit = 'helpdesk.ticket'
-    @api.model
-    def _get_reference1_list(self):
-        installed_modules = self.env['ir.module.module']._installed()
-        result = [(module,module.replace('_',' ').capitalize()) for module in \
-                  ['product','project','account','sale_subscription','sale_management'] if \
-                  module in installed_modules]
-        return result
 
-    @api.model
-    def _get_reference2_list(self):
-        installed_modules = self.env['ir.module.module']._installed()
-        result = []
-        if 'account' in installed_modules:
-            result.append(('invoice_line', "Invoice Line"))
-        if 'sale_subscription' in installed_modules:
-            result.append(('sale_subscription_line', 'Sale Subscription Line'))
-        if 'sale_management' in installed_modules:
-            result.append(('order_line', 'Order Line'))
-        return result
-
-    priority = fields.Selection(selection_add = [('4', 'Extreme' )])
+    priority = fields.Selection(selection_add = [('4', 'Extreme')])
     reported_time = fields.Datetime(string = 'Reported Time')
     fix = fields.Text()
     reason = fields.Text()
-    issue_reference_1 = fields.Selection(string="Reference 1", selection=_get_reference1_list)
+    issue_reference_1 = fields.Selection([('product','Product'), ('project','Project'), ('account','Account'), ('sale_management','Sale')], string="Reference 1")
     issue_ref1_product_id = fields.Many2one('product.product', string='Reference Product')
-    issue_ref1_sale_subscription = fields.Many2one('sale.subscription', string='Reference Sale Subscription')
     issue_ref1_sale_order = fields.Many2one('sale.order', string='Reference Sale Order')
     issue_ref1_invoice = fields.Many2one('account.invoice', string='Reference Invoice')
     issue_ref1_project = fields.Many2one('project.project', string='Reference Project')
-    issue_reference_2 = fields.Selection(string="Reference 2", selection=_get_reference2_list)
+    issue_reference_2 = fields.Selection([('invoice_line','Invoice Line'), ('order_line', 'Order Line')], string="Reference 2")
     issue_ref2_order_line = fields.Many2one('sale.order.line', string='Reference Order Line')
-    issue_ref2_sale_subscription_line = fields.Many2one('sale.subscription.line', string='Reference Sale Scubscription Line')
     issue_ref2_invoice_line = fields.Many2one('account.invoice.line', string='Reference Invoice Line')
     stage_active = fields.Boolean(related="stage_id.is_close")
     date_of_incident = fields.Datetime(string = 'Date of Incident')
@@ -53,32 +32,24 @@ class HelpdeskTickets(models.Model):
     external_follow_up = fields.Text(string = 'External follow up')
     close_date = fields.Datetime(string="Close date", compute="_compute_close_date", store=True)
 
-    @api.onchange('issue_reference_1','issue_reference_2','issue_ref1_sale_order','issue_ref1_sale_subscription','issue_ref1_invoice')
+    @api.onchange('issue_reference_1','issue_reference_2','issue_ref1_sale_order','issue_ref1_invoice')
     def _onchange_date_clear(self):
         if self.issue_reference_1 in ['product', 'project'] :
             self.issue_ref1_product_id = self.issue_ref1_project = None
             self.issue_reference_2 = None
-        elif self.issue_reference_1 == 'sale_subscription':
-            self.issue_ref1_product_id = self.issue_ref1_project = None
-            self.issue_reference_2 = 'sale_subscription_line'
-            self.issue_ref1_sale_order = self.issue_ref1_invoice = None
-            self.issue_ref2_invoice_line = self.issue_ref2_order_line =None
         elif self.issue_reference_1 == 'sale_management':
             self.issue_ref1_product_id = self.issue_ref1_project = None
             self.issue_reference_2 = 'order_line'
-            self.issue_ref1_sale_subscription = self.issue_ref1_invoice = None
-            self.issue_ref2_invoice_line = self.issue_ref2_sale_subscription_line  = None
+            self.issue_ref1_invoice = self.issue_ref2_invoice_line = None
         elif self.issue_reference_1 == 'account':
             self.issue_ref1_product_id = self.issue_ref1_project = None
             self.issue_reference_2 = 'invoice_line'
-            self.issue_ref1_sale_order = self.issue_ref1_sale_subscription = None
-            self.issue_ref2_order_line = self.issue_ref2_sale_subscription_line = None
+            self.issue_ref1_sale_order = self.issue_ref2_order_line = None
         if not self.issue_reference_2:
             self.issue_ref1_sale_order = self.issue_ref2_order_line = None
-            self.issue_ref1_sale_subscription = self.issue_ref2_sale_subscription_line = None
             self.issue_ref1_invoice = self.issue_ref2_invoice_line = None
         if self.issue_reference_2:
-            self.issue_ref2_order_line = self.issue_ref2_sale_subscription_line = self.issue_ref2_invoice_line = None
+            self.issue_ref2_order_line = self.issue_ref2_invoice_line = None
 
     @api.multi
     def ticket_get_restored(self):
