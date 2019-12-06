@@ -64,7 +64,7 @@
                                     <tr>
                                         <td style="padding-right: 50px;">Date Reported:</td>
                                         <td>
-                                            <t t-esc="o.reported_time.strftime('%m/%d/%Y')"/>
+                                            <t t-esc="o.reported_time.strftime('%m/%d/%Y') if o.reported_time else False"/>
                                         </td>
                                     </tr>
                                     <tr>
@@ -76,7 +76,7 @@
                                     <tr>
                                         <td style="padding-right: 50px;">Date of Incident:</td>
                                         <td>
-                                            <t t-esc="o.reported_time.strftime('%m/%d/%Y')"/>
+                                            <t t-esc="o.reported_time.strftime('%m/%d/%Y') if o.reported_time else False"/>
                                         </td>
                                     </tr>
                                 </table>

@@ -66,12 +66,10 @@
                                 <field name="issue_reference_1"/>
                                 <field name="issue_ref1_product_id" attrs="{'invisible':[('issue_reference_1', '!=', 'product')]}" options="{'no_create': True}"/>
                                 <field name="issue_ref1_sale_order" attrs="{'invisible':[('issue_reference_1', '!=', 'sale_management')]}" options="{'no_create': True}"/>
-                                <field name="issue_ref1_sale_subscription" attrs="{'invisible':[('issue_reference_1', '!=', 'sale_subscription')]}" options="{'no_create': True}"/>
                                 <field name="issue_ref1_invoice" attrs="{'invisible':[('issue_reference_1', '!=', 'account')]}" options="{'no_create': True}"/>
                                 <field name="issue_ref1_project" attrs="{'invisible':[('issue_reference_1', '!=', 'project')]}" options="{'no_create': True}"/>
                                 <field name="issue_reference_2"  attrs="{'invisible':[('issue_reference_1', 'in', ['project', 'product'])]}"/>
                                 <field name="issue_ref2_order_line" attrs="{'invisible':[('issue_reference_2', '!=', 'order_line')]}" domain="[('order_id.id','=',issue_ref1_sale_order)]" options="{'no_create': True}"/>
-                                <field name="issue_ref2_sale_subscription_line" attrs="{'invisible':[('issue_reference_2', '!=', 'sale_subscription_line')]}" domain="[('analytic_account_id.id','=',issue_ref1_sale_subscription)]" options="{'no_create': True}"/>
                                 <field name="issue_ref2_invoice_line" attrs="{'invisible':[('issue_reference_2', '!=', 'invoice_line')]}" domain="[('invoice_id.id','=',issue_ref1_invoice)]" options="{'no_create': True}"/>
                             </group>
                         </group>
