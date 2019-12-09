@@ -7,7 +7,7 @@
     'maintainer': 'Confianz IT',
     'category': 'Helpdesk',
     'website': 'www.confianzit.com',
-    'depends': ['mail','helpdesk','project','account','sale_management'],
+    'depends': ['mail','helpdesk','project','account'],
     'data': [
         'security/ir.model.access.csv',
         'views/helpdesk_views.xml',
