@@ -21,7 +21,7 @@
                     <button string='Project Accepted' type='object'
                             name='action_direct_customer_proposal_accept'
                             groups='project_extension.group_customer_proposal_approval' class='oe_highlight'
-                            attrs="{'invisible':[('state', '!=', 'send_to_customer')]}"
+                            attrs="{'invisible':[('state', 'not in', ['send_to_customer', 'proposal_approved'])]}"
                             />
                     <button string='Send Proposal to customer' type='object' name='action_send_proposal_to_customer'
                             class='oe_highlight' attrs="{'invisible':[('state', '!=', 'proposal_approved')]}"
