@@ -20,6 +20,7 @@
                 'security/project_security.xml',
                 'security/ir.model.access.csv',
                 'data/mail_template.xml',
+                'data/stage_data.xml',
                 'data/cron.xml',
                 'views/project_portal_templates.xml',
                 'views/proposal_portal_templates.xml',

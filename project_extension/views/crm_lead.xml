@@ -12,6 +12,12 @@
                 <xpath expr="//notebook/page[@name='lead']/group/group[4]/field[@name='day_open']" position='before'>
                     <field name='project_id'/>
                 </xpath>
+                <xpath expr="//button[@name='action_schedule_meeting']" position="before">
+                    <button name="action_view_project" string="Project" type="object"
+                        class="oe_stat_button" icon="fa-pencil-square-o"
+                        attrs="{'invisible': [('project_id', '=', False)]}">
+                    </button> 
+                </xpath>
             </field>
         </record>
     </data>
