@@ -4,6 +4,8 @@ from odoo import models, fields, api, _
 from datetime import date, timedelta
 import dateutil.relativedelta
 from dateutil.relativedelta import relativedelta
+from odoo.exceptions import UserError
+
 import json
 
 class ProjectProject(models.Model):
@@ -20,7 +22,9 @@ class ProjectProject(models.Model):
     project_type = fields.Selection([
         ('milestone', 'Milestone'),
         ('fte', 'FTE'),
-        ('time_sheet', 'Timesheet')], string='Type')
+        ('time_sheet', 'Timesheet'),
+        ('hourly', 'Hourly'),
+        ], default='milestone', string='Type')
     state = fields.Selection([
         ('draft', 'Draft'),
         ('waiting_proposal', 'Waiting Proposal'),
@@ -81,6 +85,7 @@ class ProjectProject(models.Model):
             Proposal = self.env['proposal.version']
             project.proposal_count = Proposal.search_count([('project_id', '=', project.id)])
 
+
     @api.multi
     def _compute_milestone_count(self):
         for project in self:
@@ -126,7 +131,10 @@ class ProjectProject(models.Model):
     @api.multi
     def action_set_to_cancel(self):
         for project in self:
-            project.update({'state': 'cancel', })
+            project.update({'state': 'cancel'})
+            # Create project button visibility after cancel
+            if project.lead_id.project_id:
+                project.lead_id.project_id = False
 
     @api.multi
     def action_send_proposal_to_customer(self):
@@ -162,6 +170,51 @@ class ProjectProject(models.Model):
             'target': 'new',
             'context': ctx,
         }
+
+    @api.multi
+    def action_create_invoice(self):
+        """
+            create an invoice while project type is 'hourly'
+        """
+        for project in self:
+            if project.project_type == 'hourly':
+                journal = self.env['account.journal'].search([('type', '=', 'sale')], limit=1)
+                product_account_id = project.product_id.property_account_income_id.id
+                product_category_account_id = project.product_id.categ_id.property_account_income_categ_id.id
+                journal_account_id = journal.default_credit_account_id.id
+                if product_account_id:
+                    account_id = product_account_id
+                elif product_category_account_id:
+                    account_id = product_category_account_id
+                else:
+                    account_id = journal_account_id
+                if not account_id:
+                    raise UserError(_("Account not set"))
+                self.env['account.invoice'].create({
+                                                    'partner_id': project.partner_id.id,
+                                                    'date_invoice': fields.Date.today(),
+                                                    'type': 'out_invoice',
+                                                    'project_id': project.id,
+                                                    'origin': project.name,
+                                                    'move_name': project.get_next_project_sequence_number(),
+                                                    'invoice_line_ids': [(0,0,{
+                                                                        'product_id': project.product_id.id,
+                                                                        'name':  project.product_id.description_sale or project.product_id.name,
+                                                                        'quantity': 1,
+                                                                        'account_id': account_id,
+                                                                        'price_unit': project.project_cost,
+                                                                        })]
+                                                    })
+                return True
+            else:
+                ctx = {'default_project_id': project.id, 'default_partner_id': project.partner_id.id}
+                return {
+                'type': 'ir.actions.act_window',
+                'res_model': 'project.invoice.wizard',
+                'views': [(False, 'form')],
+                'target': 'new',
+                'context': ctx,
+            }
 
     @api.multi
     def action_open_proposal(self):
@@ -347,7 +400,7 @@ class ProjectProject(models.Model):
     @api.model
     def create_timesheet_invoice(self):
         """
-            Create invoice for projects of type timesheet. Called by the cron.  
+            Create invoice for projects of type timesheet. Called by the cron.
         """
         projects = self.search([('project_type', '=', 'time_sheet'), ('active', '=', True),
                                 ('next_billing_date', '=', fields.Date.today()), ('state', '=', 'proposal_accepted')])
@@ -380,7 +433,7 @@ class ProjectProject(models.Model):
     @api.model
     def create_fte_invoice(self):
         """
-            Create invoice for projects of type fte. Called by the cron.  
+            Create invoice for projects of type fte. Called by the cron.
         """
         projects = self.search(
             [('project_type', '=', 'fte'), ('active', '=', True), ('next_billing_date', '=', fields.Date.today()),
@@ -510,9 +563,11 @@ class ProjectProject(models.Model):
         # 	'attachment_ids': [(4, invoice_pdf.id)],
         # })
         # wizard_send._send_email()
-        template.create_action()
+
+        # template.create_action()
         invoice_id.message_post_with_template(template.id,notif_layout="mail.mail_notification_paynow")
         return True
+
     @api.model
     def get_approve_users_ids(self):
         if self.approval_1_user_id.id == self.approval_2_user_id.id:
@@ -520,6 +575,7 @@ class ProjectProject(models.Model):
         else:
             ids = str([self.approval_1_user_id.partner_id.id,self.approval_2_user_id.partner_id.id]).replace('[', '').replace(']', '')
             return ids
+
     @api.model
     def invoice_projects_cron(self):
         """

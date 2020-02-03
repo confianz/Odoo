@@ -65,8 +65,8 @@ class UserProposalWizard(models.TransientModel):
         self.ensure_one()
         template = self.env.ref('project_extension.email_template_proj_proposal_user')
         template.send_mail(self.project_id.id, force_send=True)
-        email = template.generate_email(self.project_id.id)
-        self.project_id.message_post(body=email.get('body'))
+        # email = template.generate_email(self.project_id.id)
+        # self.project_id.message_post(body=email.get('body'))
         return True
     
     @api.constrains('proposed_amount', 'proposal_doc')

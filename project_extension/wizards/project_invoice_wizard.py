@@ -62,7 +62,7 @@ class ProjectInvoiceWizard(models.TransientModel):
                                                 'project_id': record.project_id.id,
                                                 'origin': record.project_id.name,
                                                 'move_name': record.project_id.get_next_project_sequence_number(),
-                                                'invoice_line_ids': [(0,0,{
+                                                'invoice_line_ids': [(0, 0, {
                                                                     'product_id': line.product_id.id,
                                                                     'name': line.description,
                                                                     'quantity': line.qty,
