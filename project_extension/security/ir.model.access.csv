@@ -9,4 +9,4 @@ access_product_price_history_project_manager,product.price.history project manag
 access_proposal_version_portal,proposal_version_portal,project_extension.model_proposal_version,base.group_portal,1,1,0,0
 access_wbs_project_user,wbs.project.user,model_wbs_project,project.group_project_user,1,1,1,1
 access_wbs_project_template_user,wbs.project.template.user,model_wbs_project_template,project.group_project_user,1,1,1,1
-
+access_project_extra_invoice_line_user,project.extra.invoice.line,model_project_extra_invoice_line,project.group_project_user,1,1,1,1

@@ -24,14 +24,22 @@ class ProjectInvoiceWizard(models.TransientModel):
     def default_get(self, fields):
         res = super(ProjectInvoiceWizard, self).default_get(fields)
         if self.env.context.get('active_model', '') == 'project.project':
+            Line_OB =self.env['project.invoice.line']
             for project in self.env['project.project'].browse(self._context.get('active_ids', 0)):
                 inv_line = []
-                new_inv_line = self.env['project.invoice.line'].create({
+                inv_line.append(Line_OB.create({
                                                  'product_id': project.product_id.id,
                                                  'description': project.product_id.description_sale or project.product_id.name,
                                                  'price': project.product_id.lst_price,
-                                                })
-                inv_line.append(new_inv_line.id)
+                                                }).id)
+                if project.extra_invoice_line_ids:
+                    for line in project.extra_invoice_line_ids:
+                        inv_line.append(Line_OB.create({
+                                                 'product_id': line.product_id.id,
+                                                 'description': line.description,
+                                                 'price': line.amount,
+                                                }).id)
+
                 res.update({
                             'project_invoice_line_ids': inv_line,
                             })
