@@ -26,7 +26,7 @@
                                 </td>
                                 <td>
                                     <div style="background-color:#4daecc;color:white; width:350px; padding:5px; margin-left:auto;" >
-                                        <p style="font-weight:400;">
+                                        <h6 style="font-weight:400;">
                                             <span t-if="o.type == 'out_invoice' and o.state in ('open', 'in_payment', 'paid')">INVOICE</span>
                                             <span t-if="o.type == 'out_invoice' and o.state == 'draft'">DRAFT INVOICE</span>
                                             <span t-if="o.type == 'out_invoice' and o.state == 'cancel'">CANCELLED INVOICE</span>
@@ -35,8 +35,9 @@
                                             <span t-if="o.type == 'in_invoice'">VENDOR BILL</span>
                                             <span>#:</span>
                                             <span t-field="o.number"/>
-                                        </p>
-                                        <h6 style="font-weight:400;" class="oe_grey" t-if="o._name == 'account.invoice'">DATE ISSUED: <t t-esc="o.date_invoice"/></h6>
+                                        </h6>
+                                        <h6 style="font-weight:400;" class="oe_grey" t-if="o._name == 'account.invoice'">DATE ISSUED: <t t-if="o.date_invoice" t-esc="o.date_invoice.strftime('%m/%d/%Y')"/></h6>
+                                        <h6 style="font-weight:400;" class="oe_grey" t-if="o._name == 'account.invoice'">DUE DATE: <t t-if="o.date_due" t-esc="o.date_due.strftime('%m/%d/%Y')"/></h6>
                                     </div>
                                 </td>
 
@@ -79,9 +80,11 @@
                                 <tr style="background-color:#4daecc;color:white;">
                                     <t t-set="colspan" t-value="6"/>
                                     <th class="text-center"><span>SL.NO.</span></th>
-                                    <th class="text-center" t-if="product_set == 'yes'"><span>TERM</span></th>
+                                    <th class="text-center" t-if="product_set == 'yes'"><span>PRODUCT</span></th>
                                     <th class="text-center"><span>DESCRIPTION</span></th>
-                                    <th class="text-center"><span>COST(USD)</span></th>
+                                    <th class="text-center"><span>QTY</span></th>
+                                    <th class="text-right"><span> &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;RATE&amp;nbsp;&amp;nbsp;</span></th>
+                                    <th class="text-right"><span>SUBTOTAL&amp;nbsp;&amp;nbsp;</span></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -92,7 +95,9 @@
                                         <td class="text-center"><span t-esc="sl_no"/></td>
                                         <td class="text-center" t-if="product_set == 'yes' and line.product_id"><span t-field="line.product_id.name"/></td>
                                         <td class="text-left"><span t-field="line.name"/></td>
-                                        <td class="text-center"><span t-field="line.price_total"/></td>
+                                        <td class="text-right"><span t-field="line.quantity"/></td>
+                                        <td class="text-right">$ <span t-field="line.price_unit"/></td>
+                                        <td class="text-right"><span t-field="line.price_total"/></td>
                                     </tr>
                                     <t t-set="sl_no" t-value="sl_no + 1"/>
                                 </t>
@@ -111,7 +116,7 @@
                                         </tr>
 
                                         <tr style="background-color:#4daecc">
-                                            <td style="color:white; font-weight:600;">AMOUNT DUE</td>
+                                            <td style="color:white; font-weight:600;">AMOUNT DUE (USD)</td>
                                             <td class="text-center">
                                                 <span style="color:white;" t-field="o.residual"/>
                                             </td>

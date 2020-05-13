@@ -19,8 +19,7 @@
                                 <span t-esc="company.partner_id.street"/><span>,</span>
                                 <span t-esc="company.partner_id.street2"/>
                                 <div>
-                                    <span t-esc="company.partner_id.city"/>
-                                    <span> , </span>
+                                    <span t-esc="company.partner_id.city"/>,
                                     <span t-esc="company.partner_id.state_id.code"/>
                                     <span t-esc="company.partner_id.zip"/>
                                 </div>
@@ -28,20 +27,20 @@
                                     <a t-att-href="company.partner_id.website"><t t-esc="company.partner_id.website"/></a>
                                 </div>
                                 <div>
-                                    Call:-
+                                    Call:
                                     <span t-esc="company.partner_id.phone"/>
                                 </div>
                                 <div>
-                                    Fax:-704-919-5033
+                                    Fax: 704-919-5033
                                 </div>
                                 <div>
-                                    Email:-<a>melissa@confianzit.com</a>
+                                    Email: <a href="mailto:melissa@confianzit.com">melissa@confianzit.com</a>
                                 </div>
                                 </div>
                             </td>
                         </tr>
                     </table>
-                    
+
                     <img style="max-width:100%; display:block; margin-bottom:30px;" src="/project_extension/static/src/img/confianz_color_bar.png" alt=""/>
                 </div>
             </div>
@@ -49,19 +48,19 @@
             <div class="article" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
                 <t t-raw="0"/>
             </div>
-            
-            <div class="footer" style="font-size:14px; color: #5d5d5d"> 
+
+            <div class="footer" style="font-size:14px; color: #5d5d5d">
                 <div class="text-center">
                     <div class="container">
                         <div class="row" style="background-color:#edeeef" t-if="docs[0]._name == 'account.invoice'">
                             <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-center">
                                 <b>Wire/ACH Info:</b><br/>
                                 BB&amp;T<br/>
-                                2040 Village View Cir. , Belmont<br/>
+                                2040 Village View Cir., Belmont<br/>
                                 North Carolina - 28012<br/>
-                                Beneficiary Account No:- <b>5204133575</b><br/>
-                                SWIFT Code:- <b>BRBTUS33</b><br/>
-                                Routing:- <b>053101121</b>
+                                Beneficiary Account No: <b>5204133575</b><br/>
+                                SWIFT Code: <b>BRBTUS33</b><br/>
+                                Routing: <b>053101121</b>
                             </div>
                         </div>
                     </div>
