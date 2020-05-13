@@ -67,7 +67,8 @@ class ProjectProject(models.Model):
     wbs_version_count = fields.Integer(string="Version", default=0)
     early_invoice = fields.Boolean(string="Early Invoice", default= False)
     extra_invoice_line_ids = fields.One2many('project.extra.invoice.line', 'project_id', string="Extra Invoice Lines")
-    custom_invoice_description = fields.Text('Custom Project Type')
+    custom_invoice_description = fields.Char('Custom Project Type')
+    
     _sql_constraints = [
         ('project_code_uniq', 'UNIQUE(project_code)', 'You can not have two Project with the same Project Code !')
     ]
