@@ -6,7 +6,7 @@
             <field name='model'>project.project</field>
             <field name='inherit_id' ref='project.edit_project'/>
             <field name='arch' type='xml'>
-            
+
                 <xpath expr='//header' position='inside'>
                     <button string='Waiting Proposal' type='object' name='action_waiting_proposal'
                             attrs="{'invisible':[('state', 'not in', ['draft', 'customer_rejected'])]}"
@@ -37,7 +37,7 @@
                     <field name='state' widget='statusbar' readonly='1'
                            statusbar_visible="waiting_proposal,waiting_approval,proposal_approved,send_to_customer,proposal_accepted"/>
                 </xpath>
-                
+
                 <xpath expr="//div[@name='button_box']/button[@name='toggle_active']" position='before'>
                     <button type='object' name='action_open_proposal' context="{'default_project_id': id,'default_approval_1_user_id':approval_1_user_id, 'default_approval_2_user_id':approval_2_user_id}" icon='fa-file-archive-o' attrs="{'invisible': ['|', ('state', '=', 'draft'), ('proposal_count', '=', 0)]}">
                         <field name='proposal_count' widget='statinfo' string='Proposals'/>
@@ -66,7 +66,8 @@
                                 <field name='invoiced_amount' attrs="{'invisible': [('invoiced_amount', '=', 0)]}" readonly='1'/>
                             </group>
                             <group>
-                                <field name='project_type' attrs="{'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}" widget='radio'/>
+                                <field name='project_type' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}" widget='radio'/>
+                                <field name="custom_invoice_description" attrs="{'invisible':[('project_type', '!=', 'fte')]}"/>
                             </group>
                             <group>
                                 <field name='date_start' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
@@ -87,11 +88,10 @@
                                 <field name='customer_accepted_proposal_id' attrs="{'invisible': [('customer_accepted_proposal_id', '=', False)], 'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
                             </group>
                         </group>
-                        
+
                         <group string="Invoice" name='invoice'>
                             <group>
                                 <field name='product_id' attrs="{'required': ['|', ('project_type', 'in', ['fte', 'milestone']), ('state', '=', 'proposal_accepted')], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}" domain="[('type', '=', 'service')]"/>
-                                <field name="custom_invoice_description" attrs="{'invisible':[('project_type', '!=', 'fte')]}"/>
                             </group>
                              <group>
                                 <field name='invoice_alert_ids' widget='many2many_tags' attrs="{'invisible': [('project_type', 'in', [False, 'hourly'])],'required': [('state', '=', 'proposal_accepted'),('project_type', '!=', 'hourly')]}"/>
@@ -116,7 +116,7 @@
                                         <field name="amount"/>
                                     </tree>
                                 </field>
-                        
+
                         </group>
                     </page>
                     <page string="Wbs Elements">
@@ -138,7 +138,7 @@
 
                     </page>
                 </xpath>
-                
+
                 <xpath expr="//notebook/page/group[1]/field[@name='partner_id']" position='attributes'>
                     <attribute name='attrs'>{'required': [('state', '=', 'proposal_approved')]}</attribute>
                 </xpath>
@@ -154,7 +154,7 @@
             </xpath>
         </field>
     </record>
-        
+
         <record id="project_project_view_kanban_inherit_proj_extn" model="ir.ui.view">
             <field name="name">project.project.kanban.inherit.proj.extn</field>
             <field name="model">project.project</field>
@@ -172,13 +172,13 @@
                 </xpath>
             </field>
         </record>
-        
+
         <record id="project_timesheet_action_client_timesheet_plan" model="ir.actions.client">
             <field name="name">Overview</field>
             <field name="tag">timesheet.dashboard</field>
             <field name="res_model">project.project</field>
             <field name="params" eval="{}"/>
         </record>
-        
+
     </data>
 </odoo>
