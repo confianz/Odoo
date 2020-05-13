@@ -59,7 +59,10 @@
                             <tbody>
                                 <tr style="color: #5d5d5d; font-weight:400;">
                                     <td class="text-center"><t t-esc="o.project_id.name"/></td>
-                                    <td class="text-center"><span t-field="o.project_id.project_type"/></td>
+                                    <td class="text-center">
+                                        <span t-if="o.project_id.project_type == 'fte'" t-esc="o.project_id.custom_invoice_description or 'FTE'"/>
+                                        <span t-if="o.project_id.project_type != 'fte'" t-field="o.project_id.project_type"/>
+                                    </td>
                                     <td t-if="o.payment_term_id" class="text-center"><t t-esc="o.payment_term_id.name"/></td>
                                 </tr>
                             </tbody>

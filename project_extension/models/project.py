@@ -67,7 +67,7 @@ class ProjectProject(models.Model):
     wbs_version_count = fields.Integer(string="Version", default=0)
     early_invoice = fields.Boolean(string="Early Invoice", default= False)
     extra_invoice_line_ids = fields.One2many('project.extra.invoice.line', 'project_id', string="Extra Invoice Lines")
-    custom_invoice_description = fields.Text('Custom Invoice Description')
+    custom_invoice_description = fields.Text('Custom Project Type')
     _sql_constraints = [
         ('project_code_uniq', 'UNIQUE(project_code)', 'You can not have two Project with the same Project Code !')
     ]
@@ -414,7 +414,7 @@ class ProjectProject(models.Model):
                         'date_invoice': fields.Date.today(),
                         'origin': project.name,
                         'move_name': project.get_next_project_sequence_number(),
-                        'invoice_line_ids': project._prepare_extra_invoice_lines(project) 
+                        'invoice_line_ids': project._prepare_extra_invoice_lines(project)
                         })
                     project.send_alerts_and_calc_bill_date(invoice_id=invoice_id)
                     for timesheet in not_invoiced_timesheets:
@@ -470,9 +470,9 @@ class ProjectProject(models.Model):
                 return res
             elif project.project_type == 'fte':
                 if billing_frequency in ['week', 'bi_week']:
-                    res = '(Week ' + str(week) + ' - ' + str(year) + ') ' + str(project.custom_invoice_description or product_desc)
+                    res = '(Week ' + str(week) + ' - ' + str(year) + ') ' + str(product_desc)
                 else:
-                    res = '(' + str(month) + ' - ' + str(year) + ') ' + str(project.custom_invoice_description or product_desc)
+                    res = '(' + str(month) + ' - ' + str(year) + ') ' + str(product_desc)
                 return res
             elif project.project_type == 'time_sheet':
                 if res_id:
@@ -495,7 +495,7 @@ class ProjectProject(models.Model):
         extra_lines = []
         journal_account_id = project.get_default_sale_jrnl_acc().id
         journal = self.env['account.journal'].search([('type', '=', 'sale')], limit=1)
-        product_account_id = milestone.project_id.product_id.property_account_income_id.id if milestone else project.product_id.property_account_income_id.id 
+        product_account_id = milestone.project_id.product_id.property_account_income_id.id if milestone else project.product_id.property_account_income_id.id
         product_category_account_id = milestone.project_id.product_id.categ_id.property_account_income_categ_id.id if milestone else project.product_id.categ_id.property_account_income_categ_id.id
         journal_account_id = journal.default_credit_account_id.id
         if product_account_id:
