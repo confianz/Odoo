@@ -66,7 +66,7 @@
                                 <field name='invoiced_amount' attrs="{'invisible': [('invoiced_amount', '=', 0)]}" readonly='1'/>
                             </group>
                             <group>
-                                <field name='project_type' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}" widget='radio'/>
+                                <field name='project_type' attrs="{'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}" widget='radio'/>
                             </group>
                             <group>
                                 <field name='date_start' attrs="{'readonly':[('state', 'in', ['proposal_accepted', 'customer_rejected', 'cancel', 'closed'])]}"/>
@@ -91,6 +91,7 @@
                         <group string="Invoice" name='invoice'>
                             <group>
                                 <field name='product_id' attrs="{'required': ['|', ('project_type', 'in', ['fte', 'milestone']), ('state', '=', 'proposal_accepted')], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}" domain="[('type', '=', 'service')]"/>
+                                <field name="custom_invoice_description" attrs="{'invisible':[('project_type', '!=', 'fte')]}"/>
                             </group>
                              <group>
                                 <field name='invoice_alert_ids' widget='many2many_tags' attrs="{'invisible': [('project_type', 'in', [False, 'hourly'])],'required': [('state', '=', 'proposal_accepted'),('project_type', '!=', 'hourly')]}"/>
@@ -104,6 +105,18 @@
                                 <field name='bill_mode' attrs="{'invisible': [('project_type', 'in', [False, 'milestone', 'hourly'])], 'required': ['&amp;', ('state', '=', 'proposal_accepted'), ('project_type', 'in', ['time_sheet', 'fte'])], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}"/>
                                 <field name='next_billing_date' attrs="{'invisible': [('project_type', 'in', [False, 'milestone', 'hourly'])], 'required': ['&amp;', ('state', '=', 'proposal_accepted'), ('bill_mode', '=', 'specific_date')], 'readonly':[('state', 'in', ['customer_rejected', 'cancel', 'closed'])]}"/>
                             </group>
+                                <separator string="Extra Invoice Lines" colspan="4"/>
+                                <field name="extra_invoice_line_ids" widget="one2many_list" nolabel="1">
+                                    <tree editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="product_id"/>
+                                        <field name="description"/>
+                                        <field name="account_id"/>
+                                        <field name="quantity"/>
+                                        <field name="amount"/>
+                                    </tree>
+                                </field>
+                        
                         </group>
                     </page>
                     <page string="Wbs Elements">

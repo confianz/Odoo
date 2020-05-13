@@ -76,18 +76,6 @@ class ProjectMilestone(models.Model):
         """
         for milestone in self:
             if not milestone.invoiced:
-                journal = self.env['account.journal'].search([('type', '=', 'sale')], limit=1)
-                product_account_id = milestone.project_id.product_id.property_account_income_id.id
-                product_category_account_id = milestone.project_id.product_id.categ_id.property_account_income_categ_id.id
-                journal_account_id = journal.default_credit_account_id.id
-                if product_account_id:
-                    account_id = product_account_id
-                elif product_category_account_id:
-                    account_id = product_category_account_id
-                else:
-                    account_id = journal_account_id
-                if not account_id:
-                    raise UserError(_("Account not set"))
                 invoice = self.env['account.invoice'].create({
                     'partner_id': milestone.project_id.partner_id.id,
                     'date_invoice': milestone.start_date,
@@ -97,13 +85,7 @@ class ProjectMilestone(models.Model):
                     'milestone_id': milestone.id,
                     'origin': milestone.name,
                     'move_name': milestone.project_id.get_next_project_sequence_number(),
-                    'invoice_line_ids': [(0,0,{
-                                        'product_id': milestone.project_id.product_id.id if milestone.project_id.product_id else None,
-                                        'name': milestone.project_id.compute_description(res_id=milestone),
-                                        'quantity': 1,
-                                        'account_id': account_id,
-                                        'price_unit': milestone.amount,
-                                        })]
+                    'invoice_line_ids': milestone.project_id._prepare_extra_invoice_lines(milestone.project_id, milestone)
                     })
                 milestone.update({'invoiced': True})
                 if cron_mode != 'on' and cron_mode != 'off':    #assert cron is off, context passed as parameter, so copy it.

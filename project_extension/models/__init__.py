@@ -9,3 +9,4 @@ from . import account_analytic_line
 from . import mail_compose_message
 from . import hr_employee
 from . import wbs_project
+from . import project_invoice_line

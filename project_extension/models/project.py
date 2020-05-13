@@ -66,6 +66,8 @@ class ProjectProject(models.Model):
     wbs_line_ids = fields.One2many('wbs.project', 'project_id', string="Wbs Lines")
     wbs_version_count = fields.Integer(string="Version", default=0)
     early_invoice = fields.Boolean(string="Early Invoice", default= False)
+    extra_invoice_line_ids = fields.One2many('project.extra.invoice.line', 'project_id', string="Extra Invoice Lines")
+    custom_invoice_description = fields.Text('Custom Invoice Description')
     _sql_constraints = [
         ('project_code_uniq', 'UNIQUE(project_code)', 'You can not have two Project with the same Project Code !')
     ]
@@ -197,13 +199,7 @@ class ProjectProject(models.Model):
                                                     'project_id': project.id,
                                                     'origin': project.name,
                                                     'move_name': project.get_next_project_sequence_number(),
-                                                    'invoice_line_ids': [(0,0,{
-                                                                        'product_id': project.product_id.id,
-                                                                        'name':  project.product_id.description_sale or project.product_id.name,
-                                                                        'quantity': 1,
-                                                                        'account_id': account_id,
-                                                                        'price_unit': project.project_cost,
-                                                                        })]
+                                                    'invoice_line_ids':project._prepare_extra_invoice_lines(project)
                                                     })
                 return True
             else:
@@ -407,8 +403,7 @@ class ProjectProject(models.Model):
         customer_ids = projects.mapped(lambda partner: partner.partner_id)
         for customer in customer_ids:
             for project in projects.filtered(lambda project: project.partner_id == customer):
-                not_invoiced_timesheets = project.analytic_account_id.line_ids.filtered(lambda
-                                                                                            line: line.project_id.id == project.id and line.timesheet_invoice_id.id == False and line.billable == True)
+                not_invoiced_timesheets = project.analytic_account_id.line_ids.filtered(lambda line: line.project_id.id == project.id and line.timesheet_invoice_id.id == False and line.billable == True)
                 if len(not_invoiced_timesheets) != 0:
                     journal_account_id = project.get_default_sale_jrnl_acc().id
                     invoice_id = self.env['account.invoice'].create({
@@ -419,12 +414,8 @@ class ProjectProject(models.Model):
                         'date_invoice': fields.Date.today(),
                         'origin': project.name,
                         'move_name': project.get_next_project_sequence_number(),
-                        'invoice_line_ids': [(0, 0, {
-                            'name': project.compute_description(res_id=timesheet),
-                            'account_id': journal_account_id,
-                            'quantity': timesheet.unit_amount,
-                            'price_unit': timesheet.employee_id.employee_rate * timesheet.unit_amount,
-                        }) for timesheet in not_invoiced_timesheets]})
+                        'invoice_line_ids': project._prepare_extra_invoice_lines(project) 
+                        })
                     project.send_alerts_and_calc_bill_date(invoice_id=invoice_id)
                     for timesheet in not_invoiced_timesheets:
                         timesheet.write({'timesheet_invoice_id': invoice_id.id})
@@ -450,13 +441,8 @@ class ProjectProject(models.Model):
                     'date_invoice': fields.Date.today(),
                     'origin': project.name,
                     'move_name': project.get_next_project_sequence_number(),
-                    'invoice_line_ids': [(0, 0, {
-                        'product_id': project.product_id.id,
-                        'name': project.compute_description(),
-                        'account_id': journal_account_id,
-                        'quantity': 1,
-                        'price_unit': project.project_cost,
-                    })]})
+                    'invoice_line_ids': project._prepare_extra_invoice_lines(project)
+                    })
                 project.send_alerts_and_calc_bill_date(invoice_id=invoice_id)
         return True
 
@@ -484,9 +470,9 @@ class ProjectProject(models.Model):
                 return res
             elif project.project_type == 'fte':
                 if billing_frequency in ['week', 'bi_week']:
-                    res = '(Week ' + str(week) + ' - ' + str(year) + ') ' + str(product_desc)
+                    res = '(Week ' + str(week) + ' - ' + str(year) + ') ' + str(project.custom_invoice_description or product_desc)
                 else:
-                    res = '(' + str(month) + ' - ' + str(year) + ') ' + str(product_desc)
+                    res = '(' + str(month) + ' - ' + str(year) + ') ' + str(project.custom_invoice_description or product_desc)
                 return res
             elif project.project_type == 'time_sheet':
                 if res_id:
@@ -504,6 +490,80 @@ class ProjectProject(models.Model):
                     else:
                         res = '(' + str(month) + ' - ' + str(year) + ') ' + str(product_desc)
                 return res
+
+    def _prepare_extra_invoice_lines(self, project=None, milestone=None):
+        extra_lines = []
+        journal_account_id = project.get_default_sale_jrnl_acc().id
+        journal = self.env['account.journal'].search([('type', '=', 'sale')], limit=1)
+        product_account_id = milestone.project_id.product_id.property_account_income_id.id if milestone else project.product_id.property_account_income_id.id 
+        product_category_account_id = milestone.project_id.product_id.categ_id.property_account_income_categ_id.id if milestone else project.product_id.categ_id.property_account_income_categ_id.id
+        journal_account_id = journal.default_credit_account_id.id
+        if product_account_id:
+            account_id = product_account_id
+        elif product_category_account_id:
+            account_id = product_category_account_id
+        else:
+            account_id = journal_account_id
+        if not account_id:
+            raise UserError(_("Account not set"))
+        if project and project.project_type in ['fte', 'hourly']:
+            extra_lines.append((0, 0, {
+                        'product_id': project.product_id.id,
+                        'name': project.compute_description() if project.project_type == 'fte' else project.product_id.description_sale or project.product_id.name,
+                        'account_id': journal_account_id if project.project_type == 'fte' else account_id,
+                        'quantity': 1,
+                        'price_unit': project.project_cost,
+                    }))
+            if project.extra_invoice_line_ids:
+                for line in project.extra_invoice_line_ids:
+                    extra_lines.append((0, 0, {
+                        'product_id': line.product_id.id,
+                        'name': line.description,
+                        'account_id': line.account_id.id,
+                        'quantity': line.quantity,
+                        'price_unit': line.amount,
+                    }))
+            return extra_lines
+        elif project and project.project_type == 'time_sheet':
+            not_invoiced_timesheets = project.analytic_account_id.line_ids.filtered(lambda line: line.project_id.id == project.id and line.timesheet_invoice_id.id == False and line.billable == True)
+            for timesheet in not_invoiced_timesheets:
+                extra_lines.append((0, 0, {
+                            'name': project.compute_description(res_id=timesheet),
+                            'account_id': journal_account_id,
+                            'quantity': timesheet.unit_amount,
+                            'price_unit': timesheet.employee_id.employee_rate * timesheet.unit_amount,
+                        }))
+            if project.extra_invoice_line_ids:
+                for line in project.extra_invoice_line_ids:
+                    extra_lines.append((0, 0, {
+                        'product_id': line.product_id.id,
+                        'name': line.description,
+                        'account_id': line.account_id.id,
+                        'quantity': line.quantity,
+                        'price_unit': line.amount,
+                    }))
+            return extra_lines
+        elif project.project_type == 'milestone' and milestone:
+            extra_lines.append((0, 0, {
+                        'product_id': project.product_id.id,
+                        'name': project.compute_description(res_id=milestone),
+                        'account_id': account_id,
+                        'quantity': 1,
+                        'price_unit': milestone.amount,
+                    }))
+            if project.extra_invoice_line_ids:
+                for line in project.extra_invoice_line_ids:
+                    extra_lines.append((0, 0, {
+                        'product_id': line.product_id.id,
+                        'name': line.description,
+                        'account_id': line.account_id.id,
+                        'quantity': line.quantity,
+                        'price_unit': line.amount,
+                    }))
+            return extra_lines
+        else:
+            return extra_lines
+
 
     @api.model
     def send_invoice_alerts(self, invoice_id=False, invoice_alert_ids=False):
