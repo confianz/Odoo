@@ -3,9 +3,9 @@
     <data>
         <template id="assets_backend" name="project extension assets" inherit_id="web.assets_backend">
             <xpath expr="." position="inside">
-                <script type="text/javascript" src="/project_extension/static/src/js/timesheet_plan.js"></script>
+                <!-- <script type="text/javascript" src="/project_extension/static/src/js/timesheet_plan.js"></script> -->
                 <script type="text/javascript" src="/project_extension/static/src/js/followers.js"></script>
-                <link rel="stylesheet" type="text/scss" href="/project_extension/static/src/scss/sale_timesheet.scss"/>
+                <!-- <link rel="stylesheet" type="text/scss" href="/project_extension/static/src/scss/sale_timesheet.scss"/> -->
             </xpath>
         </template>
     </data>

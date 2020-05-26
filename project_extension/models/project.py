@@ -22,7 +22,6 @@ class ProjectProject(models.Model):
     project_type = fields.Selection([
         ('milestone', 'Milestone'),
         ('fte', 'FTE'),
-        ('time_sheet', 'Timesheet'),
         ('hourly', 'Hourly'),
         ], default='milestone', string='Type')
     state = fields.Selection([
