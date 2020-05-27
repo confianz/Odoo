@@ -7,7 +7,7 @@
     'maintainer': 'Confianz IT',
     'category': 'project',
     'website': 'https://www.confianzit.com',
-    'depends': ['project', 'crm', 'account', 'hr', 'mail','bus' ],
+    'depends': ['project', 'crm', 'account', 'mail','bus' ],
     'data': [
                 'wizards/user_proposal_wizard.xml',
                 'wizards/project_invoice_wizard.xml',

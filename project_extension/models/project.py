@@ -643,7 +643,7 @@ class ProjectProject(models.Model):
         """
         self.env['project.milestone'].invoice_project_milestones()
         self.create_fte_invoice()
-        self.create_timesheet_invoice()
+        # self.create_timesheet_invoice()
         self.env['mail.mail'].process_email_queue()
         return True
 
