@@ -10,9 +10,9 @@
                     <field name="project_type" invisible="1"/>
                     <field name="milestone_id" attrs="{'invisible': [('project_type', '!=', 'milestone')]}"/>
                 </xpath>
-                <xpath expr="//notebook/page[2]/field[@name='timesheet_ids']/tree/field[@name='name']" position='after'>
+                <!-- <xpath expr="//notebook/page[2]/field[@name='timesheet_ids']/tree/field[@name='name']" position='after'>
                     <field name='billable' required='1'/>
-                </xpath>
+                </xpath> -->
             </field>
         </record>
         
