@@ -56,6 +56,7 @@ class ProjectProject(models.Model):
         ('month', 'Month'),
         ('week', 'Week'),
         ('bi_week', 'Bi-Week'),
+        ('yearly', 'Yearly'),
     ])
     last_billed_date = fields.Date(string='Last Bill Date')
     next_billing_date = fields.Date(string='Next Billing Date')
@@ -67,7 +68,7 @@ class ProjectProject(models.Model):
     early_invoice = fields.Boolean(string="Early Invoice", default= False)
     extra_invoice_line_ids = fields.One2many('project.extra.invoice.line', 'project_id', string="Extra Invoice Lines")
     custom_invoice_description = fields.Char('Custom Project Type')
-    
+
     _sql_constraints = [
         ('project_code_uniq', 'UNIQUE(project_code)', 'You can not have two Project with the same Project Code !')
     ]
@@ -306,7 +307,7 @@ class ProjectProject(models.Model):
                 elif project.bill_mode == 'last_day':
                     # if billing is first time, we choose current month end, other wise next month end
                     if project.last_billed_date == False:
-                        this_month_last_day = next_date_early - relativedelta(days=1) if project.early_invoice else next_month_first_day - relativedelta(days=1)
+                        this_month_last_day = next_month_first_day - relativedelta(days=1)
                         if project.weekday_bill and this_month_last_day.weekday() not in range(5):
                             project.next_billing_date = project.find_previous_weekday(this_month_last_day)
                         else:
@@ -371,6 +372,35 @@ class ProjectProject(models.Model):
                     project.early_invoice = False
                 elif project.bill_mode == 'specific_date':
                     project.next_billing_date = next_date_early + week_2 if project.early_invoice else last_billed_date + week_2
+                    project.early_invoice = False
+            elif project.billing_frequency == 'yearly':
+                year_1 = relativedelta(years=1)
+                next_year_first_day = next_date_early.replace(day=1,month=1) + year_1 if project.early_invoice else last_billed_date.replace(day=1,month=1) + year_1
+                if project.bill_mode == 'first_day':
+                    if project.weekday_bill and next_year_first_day.weekday() not in range(5):
+                        project.next_billing_date = project.find_next_weekday(next_year_first_day)
+                    else:
+                        project.next_billing_date = next_year_first_day
+                    project.early_invoice = False
+                elif project.bill_mode == 'last_day':
+                    # if billing is first time, we choose current month end, other wise next month end
+                    if project.last_billed_date == False:
+                        next_year_last_day = next_year_first_day - relativedelta(days=1)
+                        if project.weekday_bill and next_year_last_day.weekday() not in range(5):
+                            project.next_billing_date = project.find_previous_weekday(next_year_last_day)
+                        else:
+                            project.next_billing_date = next_year_last_day
+                        project.early_invoice = False
+                    else:
+                        next_next_year_first_day = next_year_first_day + year_1
+                        next_year_last_day = next_next_year_first_day - relativedelta(days=1)
+                        if project.weekday_bill and next_year_last_day.weekday() not in range(5):
+                            project.next_billing_date = project.find_previous_weekday(next_year_last_day)
+                        else:
+                            project.next_billing_date = next_year_last_day
+                        project.early_invoice = False
+                elif project.bill_mode == 'specific_date':
+                    project.next_billing_date = next_date_early + year_1 if project.early_invoice else last_billed_date + year_1
                     project.early_invoice = False
 
     def get_default_sale_jrnl_acc(self):
